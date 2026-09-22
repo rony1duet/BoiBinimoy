@@ -1,0 +1,152 @@
+package com.example.boibinimoy
+
+import android.content.Intent
+import android.os.Bundle
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
+import androidx.fragment.app.Fragment
+import com.example.boibinimoy.databinding.ActivityMainBinding
+import com.example.boibinimoy.ui.cart.CartFragment
+import com.example.boibinimoy.ui.categories.CategoriesActivity
+import com.example.boibinimoy.ui.home.HomeFragment
+import com.example.boibinimoy.ui.notifications.NotificationsActivity
+import com.example.boibinimoy.ui.profile.ProfileFragment
+import com.example.boibinimoy.ui.search.SearchFragment
+import com.example.boibinimoy.ui.sell.SellBookActivity
+
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityMainBinding
+    private val homeFragment = HomeFragment()
+    private val searchFragment = SearchFragment()
+    private val cartFragment = CartFragment()
+    private val profileFragment = ProfileFragment()
+    private var activeFragment: Fragment = homeFragment
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        setupFragments()
+        setupBottomNavigation()
+        setupDrawerNavigation()
+    }
+
+    private fun setupFragments() {
+        supportFragmentManager.beginTransaction()
+            .add(R.id.fragmentContainer, profileFragment, "PROFILE").hide(profileFragment)
+            .add(R.id.fragmentContainer, cartFragment, "CART").hide(cartFragment)
+            .add(R.id.fragmentContainer, searchFragment, "SEARCH").hide(searchFragment)
+            .add(R.id.fragmentContainer, homeFragment, "HOME")
+            .commit()
+    }
+
+    private fun setupBottomNavigation() {
+        binding.navTabHome.setOnClickListener {
+            switchFragment(homeFragment)
+            highlightTab(binding.ivNavHome, binding.tvNavHome)
+        }
+
+        binding.navTabSearch.setOnClickListener {
+            switchFragment(searchFragment)
+            highlightTab(binding.ivNavSearch, binding.tvNavSearch)
+        }
+
+        binding.navTabSell.setOnClickListener {
+            startActivity(Intent(this, SellBookActivity::class.java))
+        }
+
+        binding.navTabCart.setOnClickListener {
+            switchFragment(cartFragment)
+            highlightTab(binding.ivNavCart, binding.tvNavCart)
+        }
+
+        binding.navTabProfile.setOnClickListener {
+            switchFragment(profileFragment)
+            highlightTab(binding.ivNavProfile, binding.tvNavProfile)
+        }
+    }
+
+    private fun switchFragment(target: Fragment) {
+        if (activeFragment != target) {
+            supportFragmentManager.beginTransaction()
+                .hide(activeFragment)
+                .show(target)
+                .commit()
+            activeFragment = target
+        }
+    }
+
+    private fun highlightTab(activeIcon: ImageView, activeText: TextView) {
+        // Reset all
+        val inactiveColor = ContextCompat.getColor(this, R.color.nav_inactive)
+        val activeColor = ContextCompat.getColor(this, R.color.primary_green)
+
+        binding.ivNavHome.setColorFilter(inactiveColor)
+        binding.tvNavHome.setTextColor(inactiveColor)
+        binding.tvNavHome.paint.isFakeBoldText = false
+
+        binding.ivNavSearch.setColorFilter(inactiveColor)
+        binding.tvNavSearch.setTextColor(inactiveColor)
+        binding.tvNavSearch.paint.isFakeBoldText = false
+
+        binding.ivNavCart.setColorFilter(inactiveColor)
+        binding.tvNavCart.setTextColor(inactiveColor)
+        binding.tvNavCart.paint.isFakeBoldText = false
+
+        binding.ivNavProfile.setColorFilter(inactiveColor)
+        binding.tvNavProfile.setTextColor(inactiveColor)
+        binding.tvNavProfile.paint.isFakeBoldText = false
+
+        // Highlight selected
+        activeIcon.setColorFilter(activeColor)
+        activeText.setTextColor(activeColor)
+        activeText.paint.isFakeBoldText = true
+    }
+
+    fun openDrawer() {
+        binding.drawerLayout.openDrawer(GravityCompat.START)
+    }
+
+    fun navigateToSearch() {
+        switchFragment(searchFragment)
+        highlightTab(binding.ivNavSearch, binding.tvNavSearch)
+    }
+
+    fun navigateToSearchWithCategory(categoryName: String) {
+        switchFragment(searchFragment)
+        highlightTab(binding.ivNavSearch, binding.tvNavSearch)
+        searchFragment.filterByCategory(categoryName)
+    }
+
+    private fun setupDrawerNavigation() {
+        binding.navigationView.setNavigationItemSelectedListener { menuItem ->
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+            when (menuItem.itemId) {
+                R.id.menu_home -> {
+                    switchFragment(homeFragment)
+                    highlightTab(binding.ivNavHome, binding.tvNavHome)
+                }
+                R.id.menu_categories -> {
+                    startActivity(Intent(this, CategoriesActivity::class.java))
+                }
+                R.id.menu_exchange_hub -> {
+                    switchFragment(cartFragment)
+                    highlightTab(binding.ivNavCart, binding.tvNavCart)
+                }
+                R.id.menu_notifications -> {
+                    startActivity(Intent(this, NotificationsActivity::class.java))
+                }
+                R.id.menu_safety -> {
+                    switchFragment(homeFragment)
+                    highlightTab(binding.ivNavHome, binding.tvNavHome)
+                }
+            }
+            true
+        }
+    }
+}

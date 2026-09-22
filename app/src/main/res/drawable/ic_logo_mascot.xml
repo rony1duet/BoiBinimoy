@@ -1,0 +1,62 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="40dp"
+    android:viewportWidth="48"
+    android:viewportHeight="40">
+    <!-- Main Book Body -->
+    <path
+        android:fillColor="#58CC02"
+        android:pathData="M8,6 C8,4.9 8.9,4 10,4 L28,4 C29.1,4 30,4.9 30,6 L30,34 C30,35.1 29.1,36 28,36 L10,36 C8.9,36 8,35.1 8,34 Z" />
+    <!-- Book Spine / 3D Edge -->
+    <path
+        android:fillColor="#234E1D"
+        android:strokeColor="#234E1D"
+        android:strokeWidth="1.5"
+        android:strokeLineJoin="round"
+        android:pathData="M8,6 C8,4.9 8.9,4 10,4 L28,4 C29.1,4 30,4.9 30,6 L30,34 C30,35.1 29.1,36 28,36 L10,36 C8.9,36 8,35.1 8,34 Z" />
+    <!-- Book Pages Bottom/Side Accent -->
+    <path
+        android:fillColor="#E2F7D8"
+        android:pathData="M11,33 L27,33 C27.5,33 28,33.5 28,34 C28,34.5 27.5,35 27,35 L11,35 C10.5,35 10,34.5 10,34 C10,33.5 10.5,33 11,33 Z" />
+    <!-- Left Bookmark Ribbon / Detail -->
+    <path
+        android:fillColor="#2E7D32"
+        android:pathData="M6,8 L9,8 L9,22 L7.5,20 L6,22 Z" />
+    <!-- Eyes -->
+    <path
+        android:fillColor="#1B4314"
+        android:pathData="M16,16 A1.5,1.5 0 1,1 16,13 A1.5,1.5 0 1,1 16,16 Z" />
+    <path
+        android:fillColor="#1B4314"
+        android:pathData="M22,16 A1.5,1.5 0 1,1 22,13 A1.5,1.5 0 1,1 22,16 Z" />
+    <!-- Smile -->
+    <path
+        android:strokeColor="#1B4314"
+        android:strokeWidth="1.4"
+        android:strokeLineCap="round"
+        android:pathData="M17,19 C18,21 20,21 21,19" />
+    <!-- Little Hand Holding Open Book -->
+    <!-- Arm -->
+    <path
+        android:strokeColor="#234E1D"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:pathData="M29,20 C32,20 33,22 34,21" />
+    <!-- Held Open Book - Left Page -->
+    <path
+        android:fillColor="#48B800"
+        android:strokeColor="#234E1D"
+        android:strokeWidth="1.2"
+        android:pathData="M34,18 L38,15 L38,24 L34,26 Z" />
+    <!-- Held Open Book - Right Page -->
+    <path
+        android:fillColor="#58CC02"
+        android:strokeColor="#234E1D"
+        android:strokeWidth="1.2"
+        android:pathData="M38,15 L42,18 L42,26 L38,24 Z" />
+    <!-- Little Book Inner Page lines -->
+    <path
+        android:strokeColor="#E2F7D8"
+        android:strokeWidth="0.8"
+        android:pathData="M35,19 L37,18 M35,22 L37,21 M39,18 L41,19 M39,21 L41,22" />
+</vector>

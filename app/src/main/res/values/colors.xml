@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand Emerald / Forest Greens -->
+    <color name="primary_green">#15803D</color>
+    <color name="primary_green_dark">#14532D</color>
+    <color name="primary_green_light">#22C55E</color>
+    <color name="primary_green_mint">#E6F7EC</color>
+    <color name="primary_green_surface">#F0FDF4</color>
+    <color name="primary_green_container">#DCFCE7</color>
+    <color name="primary_green_pill">#166534</color>
+    <color name="hero_banner_start">#15803D</color>
+    <color name="hero_banner_end">#166534</color>
+
+    <!-- Trust Banner -->
+    <color name="trust_bg">#EBF9F1</color>
+    <color name="trust_border">#D1F2D9</color>
+    <color name="trust_icon_bg">#E2F7EB</color>
+
+    <!-- Neutrals & Backgrounds -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="background_light">#F9FAFB</color>
+    <color name="background_card">#FFFFFF</color>
+    <color name="surface_variant">#F3F4F6</color>
+    <color name="search_bar_bg">#F9FAFB</color>
+    <color name="divider_color">#F0F0F0</color>
+    <color name="border_light">#E5E7EB</color>
+
+    <!-- Typography -->
+    <color name="text_primary">#111827</color>
+    <color name="text_secondary">#4B5563</color>
+    <color name="text_muted">#9CA3AF</color>
+    <color name="text_hint">#9CA3AF</color>
+    <color name="text_price">#15803D</color>
+
+    <!-- Accents & Indicators -->
+    <color name="accent_orange">#F59E0B</color>
+    <color name="accent_gold">#EAB308</color>
+    <color name="heart_red">#EF4444</color>
+    <color name="badge_red">#DC2626</color>
+    <color name="tag_exchange_bg">#EFF6FF</color>
+    <color name="tag_exchange_text">#1D4ED8</color>
+    <color name="tag_condition_bg">#FEF3C7</color>
+    <color name="tag_condition_text">#92400E</color>
+
+    <!-- Category Pastel Backgrounds -->
+    <color name="cat_academic_bg">#E8F5E9</color>
+    <color name="cat_academic_icon">#1B5E20</color>
+    <color name="cat_fiction_bg">#E0F2FE</color>
+    <color name="cat_fiction_icon">#0369A1</color>
+    <color name="cat_history_bg">#FEF3C7</color>
+    <color name="cat_history_icon">#92400E</color>
+    <color name="cat_poetry_bg">#FCE7F3</color>
+    <color name="cat_poetry_icon">#9D174D</color>
+    <color name="cat_science_bg">#EDE9FE</color>
+    <color name="cat_science_icon">#5B21B6</color>
+    <color name="cat_comics_bg">#FFF7ED</color>
+    <color name="cat_comics_icon">#C2410C</color>
+    <color name="cat_business_bg">#E0E7FF</color>
+    <color name="cat_business_icon">#3730A3</color>
+    <color name="cat_islamic_bg">#ECFDF5</color>
+    <color name="cat_islamic_icon">#047857</color>
+
+    <!-- Bottom Nav -->
+    <color name="nav_active">#15803D</color>
+    <color name="nav_inactive">#6B7280</color>
+    <color name="fab_green">#15803D</color>
+</resources>

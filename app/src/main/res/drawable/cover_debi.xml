@@ -1,0 +1,31 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="170dp"
+    android:viewportWidth="120"
+    android:viewportHeight="170">
+    <!-- Deep Mystic Purple / Indigo -->
+    <path
+        android:fillColor="#1E1B4B"
+        android:pathData="M0,0h120v170h-120z" />
+    <path
+        android:fillColor="#312E81"
+        android:pathData="M60,85 A40,40 0 1,0 60,84.9 Z" />
+
+    <!-- Mystic Eye/Symbol Artwork -->
+    <path
+        android:strokeColor="#A5B4FC"
+        android:strokeWidth="1.8"
+        android:pathData="M35,80 C45,65 75,65 85,80 C75,95 45,95 35,80 Z" />
+    <path
+        android:fillColor="#E0E7FF"
+        android:pathData="M60,80 A6,6 0 1,0 60,79.9 Z" />
+
+    <!-- "দেবী" Title Simulation -->
+    <path
+        android:fillColor="#F43F5E"
+        android:pathData="M35,25h50v14h-50z" />
+    <!-- Author "হুমায়ূন আহমেদ" -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M25,48h70v5h-70z" />
+</vector>

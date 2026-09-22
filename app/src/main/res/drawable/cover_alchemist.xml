@@ -1,0 +1,45 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="170dp"
+    android:viewportWidth="120"
+    android:viewportHeight="170">
+    <!-- Sunset / Desert Gradient Base -->
+    <path
+        android:fillColor="#E65100"
+        android:pathData="M0,0h120v170h-120z" />
+    <path
+        android:fillColor="#FF8F00"
+        android:pathData="M0,0h120v120h-120z" />
+    <path
+        android:fillColor="#FFB300"
+        android:pathData="M0,40h120v60h-120z" />
+    <path
+        android:fillColor="#FFE082"
+        android:pathData="M60,90 A25,25 0 1,0 60,89.9 Z" />
+
+    <!-- Sun rays -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1"
+        android:pathData="M60,90 L20,60 M60,90 L100,60 M60,90 L60,30 M60,90 L30,40 M60,90 L90,40" />
+
+    <!-- Desert Pyramid Silhouettes -->
+    <path
+        android:fillColor="#BF360C"
+        android:pathData="M15,160 L60,105 L95,160 Z" />
+    <path
+        android:fillColor="#D84315"
+        android:pathData="M60,105 L95,160 L115,160 L75,115 Z" />
+    <path
+        android:fillColor="#870000"
+        android:pathData="M0,150 L30,120 L55,150 Z" />
+
+    <!-- Book Title Decorative Lines / Text Simulation -->
+    <path
+        android:fillColor="#212121"
+        android:pathData="M48,22h24v3h-24z M32,32h56v4h-56z M40,40h40v3h-40z" />
+    <!-- Author header line -->
+    <path
+        android:fillColor="#3E2723"
+        android:pathData="M44,14h32v2h-32z" />
+</vector>

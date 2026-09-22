@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">Boi Binimoy</string>
+    <string name="tagline">Give Books A New Life</string>
+    <string name="hero_subtitle">Buy, sell and discover great books around you.</string>
+    <string name="sell_your_book">Sell Your Book</string>
+    <string name="search_hint">Search by title, author or category</string>
+    <string name="categories">Categories</string>
+    <string name="featured_books">Featured Books</string>
+    <string name="view_all">View all</string>
+    <string name="safe_and_trusted">Safe &amp; Trusted</string>
+    <string name="safe_trusted_desc">All users are verified to ensure a safe buying and selling experience.</string>
+    <string name="recent_listings">Recently Added</string>
+    <string name="popular_exchanges">Exchange Opportunities</string>
+
+    <!-- Bottom Nav -->
+    <string name="nav_home">Home</string>
+    <string name="nav_search">Search</string>
+    <string name="nav_sell">Sell Book</string>
+    <string name="nav_cart">Cart</string>
+    <string name="nav_profile">Profile</string>
+
+    <!-- Currency -->
+    <string name="taka_symbol">৳</string>
+
+    <!-- Categories -->
+    <string name="cat_academic">Academic</string>
+    <string name="cat_fiction">Fiction</string>
+    <string name="cat_historical">Historical</string>
+    <string name="cat_poetry">Poetry</string>
+    <string name="cat_science">Science</string>
+    <string name="cat_comics">Comics</string>
+    <string name="cat_business">Business</string>
+    <string name="cat_islamic">Islamic</string>
+
+    <!-- Conditions -->
+    <string name="condition_brand_new">Brand New</string>
+    <string name="condition_like_new">Like New</string>
+    <string name="condition_good">Good</string>
+    <string name="condition_fair">Fair</string>
+</resources>

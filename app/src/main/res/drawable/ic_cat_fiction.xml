@@ -1,0 +1,23 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="28dp"
+    android:height="28dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Fiction Open Book -->
+    <path
+        android:strokeColor="#15803D"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M2,6 C4,5 7,5 12,7 C17,5 20,5 22,6 L22,19 C20,18 17,18 12,20 C7,18 4,18 2,19 Z" />
+    <path
+        android:strokeColor="#15803D"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:pathData="M12,7 L12,20" />
+    <path
+        android:strokeColor="#15803D"
+        android:strokeWidth="1.2"
+        android:strokeLineCap="round"
+        android:pathData="M5,9 C7,8.5 9,8.5 10,9 M5,12 C7,11.5 9,11.5 10,12 M14,9 C15,8.5 17,8.5 19,9 M14,12 C15,11.5 17,11.5 19,12" />
+</vector>

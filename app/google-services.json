@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "548181740079",
+    "project_id": "boibinimoy-53a13",
+    "storage_bucket": "boibinimoy-53a13.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:548181740079:android:5d45bbaa19a9cfea7994da",
+        "android_client_info": {
+          "package_name": "com.example.boibinimoy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4FEpmdIBBnSheBHVPK0VmFKia17oeULE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

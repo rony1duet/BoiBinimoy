@@ -1,0 +1,43 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="170dp"
+    android:viewportWidth="120"
+    android:viewportHeight="170">
+    <!-- Clean Off-White Background -->
+    <path
+        android:fillColor="#FDFBF7"
+        android:pathData="M0,0h120v170h-120z" />
+
+    <!-- Top text lines -->
+    <path
+        android:fillColor="#44403C"
+        android:pathData="M24,18h72v2h-72z M32,23h56v2h-56z" />
+
+    <!-- Atomic Dot Matrix Aura -->
+    <path
+        android:fillColor="#E0E7FF"
+        android:pathData="M60,65 A28,28 0 1,0 60,64.9 Z" />
+    <path
+        android:fillColor="#C7D2FE"
+        android:pathData="M60,65 A16,16 0 1,0 60,64.9 Z" />
+
+    <!-- "Atomic" Bold Serif Title Simulation -->
+    <path
+        android:fillColor="#0F172A"
+        android:pathData="M18,52h84v14h-84z" />
+
+    <!-- "Habits" Bold Serif Title Simulation -->
+    <path
+        android:fillColor="#0F172A"
+        android:pathData="M18,72h84v14h-84z" />
+
+    <!-- Subtitle lines -->
+    <path
+        android:fillColor="#64748B"
+        android:pathData="M26,105h68v2h-68z M30,111h60v2h-60z M36,117h48v2h-48z" />
+
+    <!-- Author: "James Clear" -->
+    <path
+        android:fillColor="#0F172A"
+        android:pathData="M30,140h60v5h-60z" />
+</vector>

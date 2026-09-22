@@ -1,0 +1,43 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.BoiBinimoy" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/primary_green</item>
+        <item name="colorPrimaryDark">@color/primary_green_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/primary_green_light</item>
+        <item name="colorSecondaryVariant">@color/primary_green_dark</item>
+        <item name="colorOnSecondary">@color/white</item>
+        
+        <!-- Status bar and navigation bar config to prevent any overlap -->
+        <item name="android:statusBarColor">@color/background_light</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:navigationBarColor">@color/white</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+        <item name="android:windowBackground">@color/background_light</item>
+        <item name="android:fitsSystemWindows">true</item>
+    </style>
+
+    <!-- Custom Button Styles -->
+    <style name="Widget.BoiBinimoy.Button.Pill" parent="Widget.Material3.Button">
+        <item name="cornerRadius">24dp</item>
+        <item name="backgroundTint">@color/primary_green_pill</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+    </style>
+
+    <!-- Rounded Card Styles -->
+    <style name="ShapeAppearance.BoiBinimoy.Card.Rounded16" parent="">
+        <item name="cornerSize">16dp</item>
+    </style>
+    <style name="ShapeAppearance.BoiBinimoy.Card.Rounded20" parent="">
+        <item name="cornerSize">20dp</item>
+    </style>
+    <style name="ShapeAppearance.BoiBinimoy.Card.Rounded24" parent="">
+        <item name="cornerSize">24dp</item>
+    </style>
+</resources>

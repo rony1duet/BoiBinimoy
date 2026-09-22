@@ -1,0 +1,45 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="170dp"
+    android:viewportWidth="120"
+    android:viewportHeight="170">
+    <!-- Cream Background -->
+    <path
+        android:fillColor="#F7F5EC"
+        android:pathData="M0,0h120v170h-120z" />
+
+    <!-- Top quote simulation lines -->
+    <path
+        android:fillColor="#78716C"
+        android:pathData="M35,16h50v2h-50z M42,21h36v1.5h-36z" />
+
+    <!-- Fingerprint graphic -->
+    <path
+        android:strokeColor="#78716C"
+        android:strokeWidth="1.2"
+        android:strokeLineCap="round"
+        android:pathData="M60,45 A6,8 0 0,0 60,35 A6,8 0 0,0 60,45 Z M60,42 A3,5 0 0,0 60,38" />
+
+    <!-- "Sapiens" Title simulation (Deep Maroon / Terracotta) -->
+    <path
+        android:fillColor="#B91C1C"
+        android:pathData="M25,58h70v8h-70z" />
+    <path
+        android:fillColor="#B91C1C"
+        android:pathData="M30,68h60v2.5h-60z" />
+
+    <!-- Subtitle: "A Brief History of Humankind" -->
+    <path
+        android:fillColor="#1C1917"
+        android:pathData="M28,82h64v2h-64z M35,88h50v2h-50z" />
+
+    <!-- Author: "Yuval Noah Harari" -->
+    <path
+        android:fillColor="#B91C1C"
+        android:pathData="M32,110h56v3h-56z" />
+
+    <!-- Publisher logo at bottom -->
+    <path
+        android:fillColor="#B91C1C"
+        android:pathData="M56,150h8v4h-8z" />
+</vector>

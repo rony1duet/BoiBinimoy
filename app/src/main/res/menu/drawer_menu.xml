@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/menu_home"
+            android:icon="@drawable/ic_nav_home"
+            android:title="Home" />
+        <item
+            android:id="@+id/menu_categories"
+            android:icon="@drawable/ic_cat_fiction"
+            android:title="All Categories" />
+        <item
+            android:id="@+id/menu_exchange_hub"
+            android:icon="@drawable/ic_swap_horiz"
+            android:title="Exchange Hub" />
+        <item
+            android:id="@+id/menu_notifications"
+            android:icon="@drawable/ic_bell"
+            android:title="Notifications" />
+        <item
+            android:id="@+id/menu_safety"
+            android:icon="@drawable/ic_trust_shield"
+            android:title="Safety &amp; Verification" />
+    </group>
+</menu>

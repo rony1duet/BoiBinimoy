@@ -1,0 +1,40 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="170dp"
+    android:viewportWidth="120"
+    android:viewportHeight="170">
+    <!-- River Blue / Teal Gradient -->
+    <path
+        android:fillColor="#0E7490"
+        android:pathData="M0,0h120v170h-120z" />
+    <path
+        android:fillColor="#155E75"
+        android:pathData="M0,90h120v80h-120z" />
+
+    <!-- River Waves and Boat Silhouette -->
+    <path
+        android:strokeColor="#67E8F9"
+        android:strokeWidth="1.5"
+        android:pathData="M0,110 Q30,105 60,110 T120,110 M0,130 Q30,125 60,130 T120,130" />
+    <!-- Boat -->
+    <path
+        android:fillColor="#1E293B"
+        android:pathData="M40,105 C45,108 75,108 80,105 L82,108 L38,108 Z" />
+    <!-- Oar / Sail -->
+    <path
+        android:strokeColor="#1E293B"
+        android:strokeWidth="2"
+        android:pathData="M55,95 L65,107" />
+
+    <!-- Bengali Title Art: Padma Nadir Majhi -->
+    <path
+        android:fillColor="#FEF08A"
+        android:pathData="M18,30h84v12h-84z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M24,48h72v8h-72z" />
+    <!-- Author -->
+    <path
+        android:fillColor="#E2E8F0"
+        android:pathData="M30,70h60v4h-60z" />
+</vector>

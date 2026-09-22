@@ -1,0 +1,94 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="150dp"
+    android:height="120dp"
+    android:viewportWidth="150"
+    android:viewportHeight="120">
+    <!-- Soft circular highlight behind books -->
+    <path
+        android:fillColor="#248A47"
+        android:pathData="M90,60 A45,45 0 1,0 90,59.9 Z" />
+
+    <!-- Stack of Books (Isometric / 3D Look) -->
+    <!-- Bottom Book: Blue -->
+    <!-- Spine / Base -->
+    <path
+        android:fillColor="#1E5E8A"
+        android:pathData="M25,82 L85,82 L85,94 L25,94 Z" />
+    <path
+        android:fillColor="#2575A7"
+        android:pathData="M25,82 L85,82 L95,76 L35,76 Z" />
+    <!-- Pages side -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M85,82 L95,76 L95,88 L85,94 Z" />
+    <!-- Bottom Shadow -->
+    <path
+        android:fillColor="#124424"
+        android:pathData="M22,94 L97,94 L95,97 L20,97 Z" />
+
+    <!-- Middle Book: Golden Yellow -->
+    <path
+        android:fillColor="#D97706"
+        android:pathData="M30,68 L88,68 L88,78 L30,78 Z" />
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M30,68 L88,68 L96,62 L38,62 Z" />
+    <!-- Pages side -->
+    <path
+        android:fillColor="#FEF3C7"
+        android:pathData="M88,68 L96,62 L96,72 L88,78 Z" />
+
+    <!-- Top Book: Fresh Emerald Green -->
+    <path
+        android:fillColor="#15803D"
+        android:pathData="M35,52 L85,52 L85,62 L35,62 Z" />
+    <path
+        android:fillColor="#22C55E"
+        android:pathData="M35,52 L85,52 L92,46 L42,46 Z" />
+    <!-- Pages side -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M85,52 L92,46 L92,56 L85,62 Z" />
+
+    <!-- Potted Plant on Right -->
+    <!-- Pot Shadow -->
+    <path
+        android:fillColor="#124424"
+        android:pathData="M110,88 A12,3 0 1,0 110,87.9 Z" />
+    <!-- White Plant Pot -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M102,68 L118,68 L115,86 C115,87 114,88 113,88 L107,88 C106,88 105,87 105,86 Z" />
+    <!-- Pot rim -->
+    <path
+        android:fillColor="#E5E7EB"
+        android:pathData="M101,66 L119,66 L119,69 L101,69 Z" />
+    <!-- Soil -->
+    <path
+        android:fillColor="#78350F"
+        android:pathData="M103,67 L117,67 L117,69 L103,69 Z" />
+
+    <!-- Plant Stem and Leaves -->
+    <!-- Stem -->
+    <path
+        android:strokeColor="#166534"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M110,67 Q109,50 110,36" />
+    <!-- Leaf 1 (Left bottom) -->
+    <path
+        android:fillColor="#4ADE80"
+        android:pathData="M110,60 C100,58 98,52 104,49 C108,52 110,56 110,60 Z" />
+    <!-- Leaf 2 (Right bottom) -->
+    <path
+        android:fillColor="#22C55E"
+        android:pathData="M110,54 C120,52 122,46 116,43 C112,46 110,50 110,54 Z" />
+    <!-- Leaf 3 (Left top) -->
+    <path
+        android:fillColor="#4ADE80"
+        android:pathData="M110,46 C102,44 100,38 106,35 C110,38 110,42 110,46 Z" />
+    <!-- Leaf 4 (Top tip) -->
+    <path
+        android:fillColor="#86EFAC"
+        android:pathData="M110,36 C106,28 114,28 110,36 Z" />
+</vector>
