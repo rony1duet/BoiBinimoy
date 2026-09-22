@@ -258,6 +258,8 @@
             android:id="@+id/rvExchangeRequests"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="24dp"
             tools:listitem="@layout/item_exchange_request" />
 
     </LinearLayout>
@@ -275,6 +277,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@id/btnPostBookRequest"
+            android:clipToPadding="false"
+            android:paddingBottom="12dp"
             tools:listitem="@layout/item_book_request" />
 
         <com.google.android.material.button.MaterialButton

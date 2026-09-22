@@ -19,6 +19,10 @@ import com.example.boibinimoy.ui.sell.SellBookActivity
 
 class MainActivity : AppCompatActivity() {
 
+    companion object {
+        const val EXTRA_SELECTED_CATEGORY = "extra_selected_category"
+    }
+
     private lateinit var binding: ActivityMainBinding
     private val homeFragment = HomeFragment()
     private val searchFragment = SearchFragment()
@@ -34,6 +38,20 @@ class MainActivity : AppCompatActivity() {
         setupFragments()
         setupBottomNavigation()
         setupDrawerNavigation()
+        handleIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: Intent?) {
+        val category = intent?.getStringExtra(EXTRA_SELECTED_CATEGORY)
+        if (!category.isNullOrEmpty()) {
+            navigateToSearchWithCategory(category)
+        }
     }
 
     private fun setupFragments() {
@@ -82,7 +100,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun highlightTab(activeIcon: ImageView, activeText: TextView) {
-        // Reset all
         val inactiveColor = ContextCompat.getColor(this, R.color.nav_inactive)
         val activeColor = ContextCompat.getColor(this, R.color.primary_green)
 
@@ -102,7 +119,6 @@ class MainActivity : AppCompatActivity() {
         binding.tvNavProfile.setTextColor(inactiveColor)
         binding.tvNavProfile.paint.isFakeBoldText = false
 
-        // Highlight selected
         activeIcon.setColorFilter(activeColor)
         activeText.setTextColor(activeColor)
         activeText.paint.isFakeBoldText = true

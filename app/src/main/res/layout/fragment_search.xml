@@ -167,6 +167,7 @@
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:padding="10dp"
+            android:paddingBottom="24dp"
             tools:listitem="@layout/item_book_grid" />
 
         <!-- Empty State -->
