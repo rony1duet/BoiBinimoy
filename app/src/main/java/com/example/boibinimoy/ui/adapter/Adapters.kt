@@ -116,7 +116,7 @@ class BookGridAdapter(
             tvGridAuthor.text = book.author
             tvGridPrice.text = "৳ ${book.price}"
             tvGridCondition.text = book.condition
-            tvGridLocation.text = "📍 ${book.location}"
+            tvGridLocation.text = book.location
 
             ivExchangeBadge.visibility = if (book.isExchangeAvailable) View.VISIBLE else View.GONE
 
@@ -218,7 +218,7 @@ class ExchangeRequestAdapter(
         val req = requests[position]
         with(holder.binding) {
             tvExchangeUser.text = req.userName
-            tvExchangeLocation.text = "📍 ${req.userLocation} • ${req.date}"
+            tvExchangeLocation.text = "${req.userLocation} • ${req.date}"
             tvExchangeStatus.text = req.status
 
             tvOfferedTitle.text = req.offeredBookTitle
@@ -277,7 +277,7 @@ class BookRequestAdapter(
         with(holder.binding) {
             tvRequestTitle.text = "Wanted: ${req.bookTitle}"
             tvRequestAuthorCategory.text = "by ${req.author} • Category: ${req.category}"
-            tvRequestUserLocation.text = "👤 ${req.requesterName} • 📍 ${req.requesterLocation}"
+            tvRequestUserLocation.text = "${req.requesterName} • ${req.requesterLocation}"
             tvRequestPrice.text = "Budget: ~৳ ${req.maxPrice}"
             tvRequestNote.text = if (req.note.isNotBlank()) "\"${req.note}\"" else "\"Looking for this book. Please contact me if you have it!\""
             tvRequestBadge.text = req.status

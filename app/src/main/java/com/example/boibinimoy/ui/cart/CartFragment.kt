@@ -141,7 +141,7 @@ class CartFragment : Fragment() {
                     updateCartTotals()
                     binding.btnCheckout.isEnabled = true
                     binding.btnCheckout.text = "Proceed to Checkout (bKash / COD)"
-                    Toast.makeText(requireContext(), "🎉 Order Placed Successfully! Order confirmation saved.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), "Order Placed Successfully! Order confirmation saved.", Toast.LENGTH_LONG).show()
                 } catch (e: Exception) {
                     binding.btnCheckout.isEnabled = true
                     binding.btnCheckout.text = "Proceed to Checkout (bKash / COD)"
@@ -280,7 +280,7 @@ class CartFragment : Fragment() {
                         status = "OPEN"
                     )
                     FirestoreRepository.addBookRequest(newReq)
-                    Toast.makeText(requireContext(), "🎉 Book Request Posted! Sellers will notify you.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), "Book Request Posted! Sellers will notify you.", Toast.LENGTH_LONG).show()
                     dialog.dismiss()
                 } catch (e: Exception) {
                     btnSubmit.isEnabled = true
@@ -301,7 +301,7 @@ class CartFragment : Fragment() {
 
         binding.tvCartSubtotal.text = "৳ $subtotal"
         binding.tvCartTotal.text = "৳ $total"
-        binding.tabCart.text = "🛒 Cart (${cartItems.size})"
+        binding.tabCart.text = "Cart (${cartItems.size})"
     }
 
     override fun onResume() {

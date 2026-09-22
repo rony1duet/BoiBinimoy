@@ -47,7 +47,7 @@ class ProfileFragment : Fragment() {
                 .catch { }
                 .collect { profile ->
                     binding.tvProfileName.text = profile.name
-                    binding.tvProfileMeta.text = "📍 ${profile.location} • Member since ${profile.memberSince}"
+                    binding.tvProfileMeta.text = "${profile.location} • Member since ${profile.memberSince}"
                     binding.tvStatListed.text = profile.booksListed.toString()
                     binding.tvStatSold.text = profile.booksSold.toString()
                     binding.tvStatSwapped.text = profile.booksExchanged.toString()
@@ -64,7 +64,7 @@ class ProfileFragment : Fragment() {
             viewLifecycleOwner.lifecycleScope.launch {
                 try {
                     FirestoreRepository.toggleAdminRole("user_default", isChecked)
-                    val modeText = if (isChecked) "Admin Mode Activated ⚡" else "Standard User Mode"
+                    val modeText = if (isChecked) "Admin Mode Activated" else "Standard User Mode"
                     Toast.makeText(requireContext(), modeText, Toast.LENGTH_SHORT).show()
                 } catch (e: Exception) {
                     Toast.makeText(requireContext(), "Error updating role: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -80,7 +80,7 @@ class ProfileFragment : Fragment() {
             viewLifecycleOwner.lifecycleScope.launch {
                 try {
                     FirestoreRepository.seedIfEmpty()
-                    Toast.makeText(requireContext(), "🎉 Firestore Sample Data Seeded!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Firestore Sample Data Seeded!", Toast.LENGTH_SHORT).show()
                 } catch (e: Exception) {
                     Toast.makeText(requireContext(), "Error seeding: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
@@ -141,7 +141,7 @@ class ProfileFragment : Fragment() {
             viewLifecycleOwner.lifecycleScope.launch {
                 try {
                     FirestoreRepository.sendBroadcastNotification(title, msg)
-                    Toast.makeText(requireContext(), "📢 Broadcast notification sent to all users!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), "Broadcast notification sent to all users!", Toast.LENGTH_LONG).show()
                     dialog.dismiss()
                 } catch (e: Exception) {
                     btnSend.isEnabled = true

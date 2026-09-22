@@ -87,7 +87,7 @@ class SellBookActivity : AppCompatActivity() {
                     val docId = FirestoreRepository.addBook(newBook)
                     Toast.makeText(
                         this@SellBookActivity,
-                        "🎉 Book listed on Firestore! ID: ${docId.take(8)}…",
+                        "Book listed on Firestore! ID: ${docId.take(8)}...",
                         Toast.LENGTH_LONG
                     ).show()
                     finish()

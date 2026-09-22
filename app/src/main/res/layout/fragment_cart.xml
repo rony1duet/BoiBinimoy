@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/background_light">
+    android:background="@color/background_light"
+    tools:context=".ui.cart.CartFragment">
 
     <!-- Header -->
     <RelativeLayout
@@ -45,9 +46,9 @@
             android:background="@drawable/bg_pill_button"
             android:backgroundTint="@color/primary_green"
             android:gravity="center"
-            android:text="🛒 Cart"
+            android:text="Cart"
             android:textColor="@color/white"
-            android:textSize="12sp"
+            android:textSize="13sp"
             android:textStyle="bold"
             android:clickable="true"
             android:focusable="true" />
@@ -58,9 +59,9 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="🔄 Swaps"
+            android:text="Swaps"
             android:textColor="@color/text_secondary"
-            android:textSize="12sp"
+            android:textSize="13sp"
             android:clickable="true"
             android:focusable="true" />
 
@@ -70,9 +71,9 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="📖 Requests"
+            android:text="Requests"
             android:textColor="@color/text_secondary"
-            android:textSize="12sp"
+            android:textSize="13sp"
             android:clickable="true"
             android:focusable="true" />
 
@@ -233,7 +234,7 @@
                 android:id="@+id/btnCheckout"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:text="Proceed to Checkout (bKash / COD)"
+                android:text="Proceed to Checkout"
                 android:textColor="@color/white"
                 android:textSize="14sp"
                 android:textStyle="bold"
@@ -281,7 +282,7 @@
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_alignParentBottom="true"
-            android:text="➕ Post a Book Request"
+            android:text="Post a Book Request"
             android:textColor="@color/white"
             android:textSize="14sp"
             android:textStyle="bold"

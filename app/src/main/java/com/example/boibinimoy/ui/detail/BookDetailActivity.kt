@@ -61,7 +61,7 @@ class BookDetailActivity : AppCompatActivity() {
             tvDetailPageCount.text = book.pageCount.toString()
 
             tvSellerName.text = book.sellerName
-            tvSellerLocation.text = "📍 ${book.location} • Active ${book.sellerResponseTime}"
+            tvSellerLocation.text = "${book.location} • Active ${book.sellerResponseTime}"
             tvSellerRating.text = book.sellerRating.toString()
 
             tvDetailDescription.text = book.description
@@ -136,7 +136,7 @@ class BookDetailActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 try {
                     FirestoreRepository.addExchangeRequest(req)
-                    Toast.makeText(this@BookDetailActivity, "🎉 Exchange proposal sent to ${book.sellerName}!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@BookDetailActivity, "Exchange proposal sent to ${book.sellerName}!", Toast.LENGTH_LONG).show()
                 } catch (e: Exception) {
                     Toast.makeText(this@BookDetailActivity, "Error sending request: ${e.message}", Toast.LENGTH_SHORT).show()
                 } finally {
@@ -163,7 +163,7 @@ class BookDetailActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 try {
                     FirestoreRepository.deleteBook(book.id)
-                    Toast.makeText(this@BookDetailActivity, "🗑️ Book deleted from Firestore by Admin", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@BookDetailActivity, "Book deleted from Firestore by Admin", Toast.LENGTH_SHORT).show()
                     finish()
                 } catch (e: Exception) {
                     Toast.makeText(this@BookDetailActivity, "Error deleting: ${e.message}", Toast.LENGTH_SHORT).show()

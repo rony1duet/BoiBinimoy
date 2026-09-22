@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:background="@color/background_light">
+    android:background="@color/background_light"
+    tools:context=".ui.detail.BookDetailActivity">
 
     <!-- Scrollable Content -->
     <androidx.core.widget.NestedScrollView
@@ -363,7 +364,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="⚡ Admin / Seller Management"
+                        android:text="Admin / Seller Management"
                         android:textColor="@color/heart_red"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -474,7 +475,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
-                                android:text="📍 Dhanmondi, Dhaka • Active 15m ago"
+                                android:text="Dhanmondi, Dhaka • Active 15m ago"
                                 android:textColor="@color/text_muted"
                                 android:textSize="11sp" />
 

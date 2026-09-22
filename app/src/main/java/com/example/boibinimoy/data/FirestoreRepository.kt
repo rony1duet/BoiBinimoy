@@ -164,7 +164,7 @@ object FirestoreRepository {
         // Also broadcast a notification for new book request
         sendNotification(
             NotificationItem(
-                title = "New Book Request Posted 📖",
+                title = "New Book Request Posted",
                 message = "${request.requesterName} requested '${request.bookTitle}' by ${request.author}",
                 timestamp = "Just now",
                 type = NotificationType.BOOK_REQUEST.name
@@ -192,7 +192,7 @@ object FirestoreRepository {
         // Trigger Order Confirmation Notification
         sendNotification(
             NotificationItem(
-                title = "Order Placed Successfully! ✅",
+                title = "Order Placed Successfully!",
                 message = "Your order #${docRef.id.take(8).uppercase()} for ${order.items.size} book(s) total ৳${order.totalAmount} has been placed.",
                 timestamp = "Just now",
                 type = NotificationType.ORDER.name
@@ -451,7 +451,7 @@ object FirestoreRepository {
                 "userId" to "default"
             ),
             mapOf(
-                "title" to "Price Drop Alert 🔥",
+                "title" to "Price Drop Alert",
                 "message" to "'Sapiens' dropped from ৳700 to ৳300 — grab it now!",
                 "timestamp" to "15 min ago",
                 "type" to "PRICE_DROP",
