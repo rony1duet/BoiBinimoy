@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.boibinimoy.R
 import com.example.boibinimoy.data.BookRepository
 import com.example.boibinimoy.data.FirestoreRepository
+import com.example.boibinimoy.data.UserManager
 import com.example.boibinimoy.databinding.FragmentCartBinding
 import com.example.boibinimoy.model.BookRequest
 import com.example.boibinimoy.model.OrderItem
@@ -96,11 +97,11 @@ class CartFragment : Fragment() {
 
     private fun observeUserProfile() {
         viewLifecycleOwner.lifecycleScope.launch {
-            FirestoreRepository.getUserProfile()
-                .catch { }
-                .collect { profile ->
-                    isAdminMode = profile.isAdmin
-                }
+            UserManager.currentUserFlow.collect { user ->
+                val admin = user?.isAdmin ?: UserManager.isAdmin()
+                isAdminMode = admin
+                bookRequestAdapter.updateAdminState(admin)
+            }
         }
     }
 
@@ -117,6 +118,10 @@ class CartFragment : Fragment() {
         binding.rvCartItems.layoutManager = LinearLayoutManager(requireContext())
         binding.rvCartItems.adapter = cartAdapter
 
+        binding.btnEmptyExploreBooks.setOnClickListener {
+            (activity as? com.example.boibinimoy.MainActivity)?.navigateToSearch()
+        }
+
         binding.btnCheckout.setOnClickListener {
             if (cartItems.isEmpty()) {
                 Toast.makeText(requireContext(), "Your cart is empty!", Toast.LENGTH_SHORT).show()
@@ -129,11 +134,14 @@ class CartFragment : Fragment() {
 
             viewLifecycleOwner.lifecycleScope.launch {
                 try {
+                    val user = UserManager.currentUser
                     val order = OrderItem(
                         items = cartItems.toList(),
                         totalAmount = total,
                         orderDate = "Just now",
-                        status = "CONFIRMED"
+                        status = "CONFIRMED",
+                        userName = user?.name ?: "Riad Hasan",
+                        deliveryAddress = user?.location ?: "Dhanmondi, Dhaka"
                     )
                     FirestoreRepository.addOrder(order)
                     cartItems.clear()
@@ -181,6 +189,7 @@ class CartFragment : Fragment() {
         )
         binding.rvExchangeRequests.layoutManager = LinearLayoutManager(requireContext())
         binding.rvExchangeRequests.adapter = exchangeAdapter
+        updateSwapsVisibility(requests.size)
     }
 
     private fun setupBookRequestsRecyclerView() {
@@ -204,6 +213,7 @@ class CartFragment : Fragment() {
         )
         binding.rvBookRequests.layoutManager = LinearLayoutManager(requireContext())
         binding.rvBookRequests.adapter = bookRequestAdapter
+        updateRequestsVisibility(0)
 
         binding.btnPostBookRequest.setOnClickListener {
             showPostBookRequestDialog()
@@ -219,6 +229,7 @@ class CartFragment : Fragment() {
                     if (firestoreRequests.isNotEmpty()) {
                         exchangeAdapter.updateData(firestoreRequests)
                     }
+                    updateSwapsVisibility(firestoreRequests.size.coerceAtLeast(BookRepository.getExchangeRequests().size))
                 }
         }
 
@@ -228,6 +239,7 @@ class CartFragment : Fragment() {
                 .catch { }
                 .collect { requests ->
                     bookRequestAdapter.updateData(requests)
+                    updateRequestsVisibility(requests.size)
                 }
         }
     }
@@ -268,13 +280,14 @@ class CartFragment : Fragment() {
 
             viewLifecycleOwner.lifecycleScope.launch {
                 try {
+                    val user = UserManager.currentUser
                     val newReq = BookRequest(
                         bookTitle = title,
                         author = author,
                         category = category,
                         maxPrice = budget,
-                        requesterName = "Riad Hasan",
-                        requesterLocation = "Dhanmondi, Dhaka",
+                        requesterName = user?.name ?: "Riad Hasan",
+                        requesterLocation = user?.location ?: "Dhanmondi, Dhaka",
                         note = note,
                         timestamp = "Just now",
                         status = "OPEN"
@@ -293,15 +306,46 @@ class CartFragment : Fragment() {
         dialog.show()
     }
 
+    private fun updateSwapsVisibility(count: Int) {
+        if (count == 0) {
+            binding.layoutSwapsEmpty.visibility = View.VISIBLE
+            binding.rvExchangeRequests.visibility = View.GONE
+        } else {
+            binding.layoutSwapsEmpty.visibility = View.GONE
+            binding.rvExchangeRequests.visibility = View.VISIBLE
+        }
+    }
+
+    private fun updateRequestsVisibility(count: Int) {
+        if (count == 0) {
+            binding.layoutRequestsEmpty.visibility = View.VISIBLE
+            binding.rvBookRequests.visibility = View.GONE
+        } else {
+            binding.layoutRequestsEmpty.visibility = View.GONE
+            binding.rvBookRequests.visibility = View.VISIBLE
+        }
+    }
+
     private fun updateCartTotals() {
         val cartItems = BookRepository.getCartItems()
+        if (cartItems.isEmpty()) {
+            binding.layoutCartEmpty.visibility = View.VISIBLE
+            binding.scrollCartContent.visibility = View.GONE
+            binding.layoutCheckoutBar.visibility = View.GONE
+        } else {
+            binding.layoutCartEmpty.visibility = View.GONE
+            binding.scrollCartContent.visibility = View.VISIBLE
+            binding.layoutCheckoutBar.visibility = View.VISIBLE
+        }
+
         val subtotal = cartItems.sumOf { it.book.price * it.quantity }
         val delivery = if (cartItems.isEmpty()) 0 else 50
         val total = subtotal + delivery
 
         binding.tvCartSubtotal.text = "৳ $subtotal"
+        binding.tvDeliveryFee.text = "৳ $delivery"
         binding.tvCartTotal.text = "৳ $total"
-        binding.tabCart.text = "Cart (${cartItems.size})"
+        binding.tabCart.text = if (cartItems.isEmpty()) "Cart" else "Cart (${cartItems.size})"
     }
 
     override fun onResume() {
@@ -309,6 +353,16 @@ class CartFragment : Fragment() {
         cartAdapter.notifyDataSetChanged()
         exchangeAdapter.notifyDataSetChanged()
         updateCartTotals()
+        updateSwapsVisibility(exchangeAdapter.itemCount)
+        updateRequestsVisibility(bookRequestAdapter.itemCount)
+    }
+
+    fun handleBackPress(): Boolean {
+        if (_binding != null && (binding.layoutSwapsContainer.visibility == View.VISIBLE || binding.layoutRequestsContainer.visibility == View.VISIBLE)) {
+            showContainer(binding.layoutCartContainer, binding.tabCart)
+            return true
+        }
+        return false
     }
 
     override fun onDestroyView() {

@@ -25,6 +25,12 @@
             </intent-filter>
         </activity>
 
+        <!-- Auth Login & Registration Activity -->
+        <activity
+            android:name=".ui.auth.LoginActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize" />
+
         <!-- Book Detail Activity -->
         <activity
             android:name=".ui.detail.BookDetailActivity"

@@ -4,11 +4,31 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
 import com.example.boibinimoy.R
+import com.example.boibinimoy.data.BookRepository
 import com.example.boibinimoy.databinding.*
 import com.example.boibinimoy.model.*
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
+fun ImageView.loadBookCover(coverUrl: String?, coverResId: Int) {
+    if (!coverUrl.isNullOrBlank()) {
+        load(coverUrl) {
+            crossfade(true)
+            placeholder(if (coverResId != 0) coverResId else R.drawable.cover_generic)
+            error(if (coverResId != 0) coverResId else R.drawable.cover_generic)
+        }
+    } else if (coverResId != 0) {
+        setImageResource(coverResId)
+    } else {
+        setImageResource(R.drawable.cover_generic)
+    }
+}
 
 // 1. Category Adapter
 class CategoryAdapter(
@@ -25,13 +45,33 @@ class CategoryAdapter(
 
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
         val category = categories[position]
-        holder.binding.tvCategoryName.text = category.name
-        if (category.iconResId != 0) {
-            holder.binding.ivCategoryIcon.setImageResource(category.iconResId)
+        val categoryName = category.name.trim()
+        val resolvedIcon = BookRepository.resolveCategoryIcon(categoryName)
+        val resolvedColor = BookRepository.resolveCategoryColor(categoryName)
+
+        holder.binding.tvCategoryName.text = categoryName
+        val dynamicCount = BookRepository.getAllBooks().count { it.category.equals(categoryName, ignoreCase = true) }
+        val countToShow = if (dynamicCount > 0) dynamicCount else category.bookCount
+        if (countToShow > 0) {
+            holder.binding.tvCategoryCount.visibility = View.VISIBLE
+            holder.binding.tvCategoryCount.text = "$countToShow ${if (countToShow == 1) "book" else "books"}"
+        } else {
+            holder.binding.tvCategoryCount.visibility = View.GONE
         }
-        holder.binding.root.setOnClickListener {
+        holder.binding.ivCategoryIcon.setImageResource(resolvedIcon)
+        holder.binding.ivCategoryIcon.contentDescription = categoryName
+        holder.binding.ivCategoryIcon.setColorFilter(
+            ContextCompat.getColor(holder.itemView.context, R.color.text_primary)
+        )
+
+        val cardColor = ContextCompat.getColor(holder.itemView.context, resolvedColor)
+        holder.binding.cardCategory.setCardBackgroundColor(cardColor)
+
+        val clickListener = View.OnClickListener {
             onCategoryClick(category)
         }
+        holder.binding.root.setOnClickListener(clickListener)
+        holder.binding.cardCategory.setOnClickListener(clickListener)
     }
 
     override fun getItemCount(): Int = categories.size
@@ -60,7 +100,8 @@ class FeaturedBookAdapter(
     override fun onBindViewHolder(holder: FeaturedBookViewHolder, position: Int) {
         val book = books[position]
         with(holder.binding) {
-            if (book.coverResId != 0) ivBookCover.setImageResource(book.coverResId)
+            book.isFavorite = BookRepository.isFavorite(book)
+            ivBookCover.loadBookCover(book.coverUrl, book.coverResId)
             tvBookTitle.text = book.title
             tvBookAuthor.text = book.author
             tvBookPrice.text = "৳ ${book.price}"
@@ -70,8 +111,11 @@ class FeaturedBookAdapter(
             )
 
             btnFavorite.setOnClickListener {
-                onFavoriteClick(book, position)
-                notifyItemChanged(position)
+                val currentPos = holder.bindingAdapterPosition
+                if (currentPos != RecyclerView.NO_POSITION) {
+                    onFavoriteClick(book, currentPos)
+                    notifyItemChanged(currentPos)
+                }
             }
 
             root.setOnClickListener {
@@ -111,7 +155,8 @@ class BookGridAdapter(
     override fun onBindViewHolder(holder: BookGridViewHolder, position: Int) {
         val book = books[position]
         with(holder.binding) {
-            ivGridCover.setImageResource(book.coverResId)
+            book.isFavorite = BookRepository.isFavorite(book)
+            ivGridCover.loadBookCover(book.coverUrl, book.coverResId)
             tvGridTitle.text = book.title
             tvGridAuthor.text = book.author
             tvGridPrice.text = "৳ ${book.price}"
@@ -125,8 +170,11 @@ class BookGridAdapter(
             )
 
             btnGridFavorite.setOnClickListener {
-                onFavoriteClick(book, position)
-                notifyItemChanged(position)
+                val currentPos = holder.bindingAdapterPosition
+                if (currentPos != RecyclerView.NO_POSITION) {
+                    onFavoriteClick(book, currentPos)
+                    notifyItemChanged(currentPos)
+                }
             }
 
             root.setOnClickListener {
@@ -155,7 +203,7 @@ class CartAdapter(
     override fun onBindViewHolder(holder: CartViewHolder, position: Int) {
         val item = items[position]
         with(holder.binding) {
-            ivCartCover.setImageResource(item.book.coverResId)
+            ivCartCover.loadBookCover(item.book.coverUrl, item.book.coverResId)
             tvCartTitle.text = item.book.title
             tvCartAuthor.text = item.book.author
             tvCartCondition.text = "Condition: ${item.book.condition}"
@@ -163,29 +211,40 @@ class CartAdapter(
             tvQuantity.text = item.quantity.toString()
 
             btnPlus.setOnClickListener {
-                item.quantity++
-                notifyItemChanged(position)
-                onQuantityChanged()
-            }
-
-            btnMinus.setOnClickListener {
-                if (item.quantity > 1) {
-                    item.quantity--
-                    notifyItemChanged(position)
-                    onQuantityChanged()
-                } else {
-                    val removed = items.removeAt(position)
-                    notifyItemRemoved(position)
-                    onItemRemoved(removed)
+                val currentPos = holder.bindingAdapterPosition
+                if (currentPos != RecyclerView.NO_POSITION) {
+                    item.quantity++
+                    notifyItemChanged(currentPos)
                     onQuantityChanged()
                 }
             }
 
+            btnMinus.setOnClickListener {
+                val currentPos = holder.bindingAdapterPosition
+                if (currentPos != RecyclerView.NO_POSITION) {
+                    if (item.quantity > 1) {
+                        item.quantity--
+                        notifyItemChanged(currentPos)
+                        onQuantityChanged()
+                    } else {
+                        val removed = items.removeAt(currentPos)
+                        notifyItemRemoved(currentPos)
+                        notifyItemRangeChanged(currentPos, items.size - currentPos)
+                        onItemRemoved(removed)
+                        onQuantityChanged()
+                    }
+                }
+            }
+
             btnRemoveCart.setOnClickListener {
-                val removed = items.removeAt(position)
-                notifyItemRemoved(position)
-                onItemRemoved(removed)
-                onQuantityChanged()
+                val currentPos = holder.bindingAdapterPosition
+                if (currentPos != RecyclerView.NO_POSITION) {
+                    val removed = items.removeAt(currentPos)
+                    notifyItemRemoved(currentPos)
+                    notifyItemRangeChanged(currentPos, items.size - currentPos)
+                    onItemRemoved(removed)
+                    onQuantityChanged()
+                }
             }
         }
     }
@@ -254,7 +313,7 @@ class ExchangeRequestAdapter(
 // 6. Book Requests Adapter (User Request a Book feature)
 class BookRequestAdapter(
     private val requests: MutableList<BookRequest>,
-    private val isAdmin: Boolean,
+    private var isAdmin: Boolean,
     private val onOfferBook: (BookRequest) -> Unit,
     private val onDeleteRequest: (BookRequest) -> Unit
 ) : RecyclerView.Adapter<BookRequestAdapter.BookRequestViewHolder>() {
@@ -264,6 +323,11 @@ class BookRequestAdapter(
     fun updateData(newRequests: List<BookRequest>) {
         requests.clear()
         requests.addAll(newRequests)
+        notifyDataSetChanged()
+    }
+
+    fun updateAdminState(isAdmin: Boolean) {
+        this.isAdmin = isAdmin
         notifyDataSetChanged()
     }
 
@@ -318,6 +382,19 @@ class NotificationAdapter(
             tvNotifDesc.text = notif.message
             tvNotifTime.text = notif.timestamp
 
+            // Dynamic icon and tint based on notification type
+            val (iconRes, iconTintRes, bgTintRes) = when (notif.type.uppercase()) {
+                "EXCHANGE" -> Triple(R.drawable.ic_swap_horiz, R.color.primary_green, R.color.primary_green_mint)
+                "PRICE_DROP" -> Triple(R.drawable.ic_nav_cart, R.color.accent_orange, R.color.tag_condition_bg)
+                "MESSAGE" -> Triple(R.drawable.ic_chat, R.color.primary_green_dark, R.color.primary_green_mint)
+                "ORDER" -> Triple(R.drawable.ic_check_circle, R.color.primary_green, R.color.primary_green_container)
+                "BOOK_REQUEST" -> Triple(R.drawable.ic_menu_book, R.color.cat_science_icon, R.color.cat_science_bg)
+                else -> Triple(R.drawable.ic_bell, R.color.primary_green, R.color.primary_green_mint)
+            }
+            ivNotifIcon.setImageResource(iconRes)
+            ivNotifIcon.setColorFilter(ContextCompat.getColor(root.context, iconTintRes))
+            ivNotifIcon.backgroundTintList = ContextCompat.getColorStateList(root.context, bgTintRes)
+
             viewUnreadDot.visibility = if (notif.isRead) View.GONE else View.VISIBLE
 
             root.setOnClickListener {
@@ -336,6 +413,8 @@ class ChatAdapter(
     private val messages: MutableList<ChatMessage>
 ) : RecyclerView.Adapter<ChatAdapter.ChatViewHolder>() {
 
+    private val timeFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
+
     inner class ChatViewHolder(val binding: ItemChatMessageBinding) : RecyclerView.ViewHolder(binding.root)
 
     fun updateMessages(newMessages: List<ChatMessage>) {
@@ -351,17 +430,18 @@ class ChatAdapter(
 
     override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
         val msg = messages[position]
+        val formattedTime = if (msg.timestamp > 0) timeFormat.format(Date(msg.timestamp)) else "Just now"
         with(holder.binding) {
             if (msg.isMe) {
                 layoutOutgoing.visibility = View.VISIBLE
                 layoutIncoming.visibility = View.GONE
                 tvOutgoingText.text = msg.message
-                tvOutgoingTime.text = "${msg.timestamp} • Delivered"
+                tvOutgoingTime.text = "$formattedTime • Delivered"
             } else {
                 layoutIncoming.visibility = View.VISIBLE
                 layoutOutgoing.visibility = View.GONE
                 tvIncomingText.text = msg.message
-                tvIncomingTime.text = msg.timestamp.toString()
+                tvIncomingTime.text = formattedTime
             }
         }
     }

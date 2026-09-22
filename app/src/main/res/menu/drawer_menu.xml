@@ -22,8 +22,8 @@
             android:icon="@drawable/ic_bell"
             android:title="Notifications" />
         <item
-            android:id="@+id/menu_safety"
-            android:icon="@drawable/ic_trust_shield"
-            android:title="Safety &amp; Verification" />
+            android:id="@+id/menu_logout"
+            android:icon="@drawable/ic_arrow_back"
+            android:title="Log Out" />
     </group>
 </menu>

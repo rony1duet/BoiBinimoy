@@ -11,13 +11,17 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.boibinimoy.MainActivity
 import com.example.boibinimoy.R
+import com.example.boibinimoy.data.BookRepository
 import com.example.boibinimoy.data.FirestoreRepository
+import com.example.boibinimoy.data.UserManager
 import com.example.boibinimoy.databinding.FragmentProfileBinding
+import com.example.boibinimoy.model.NotificationItem
+import com.example.boibinimoy.model.NotificationType
 import com.example.boibinimoy.ui.notifications.NotificationsActivity
 import com.example.boibinimoy.ui.sell.SellBookActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
-import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class ProfileFragment : Fragment() {
@@ -44,23 +48,24 @@ class ProfileFragment : Fragment() {
 
     private fun observeUserProfile() {
         viewLifecycleOwner.lifecycleScope.launch {
-            FirestoreRepository.getUserProfile("user_default")
-                .catch { }
-                .collect { profile ->
-                    isAdminMode = profile.isAdmin
-                    binding.tvProfileName.text = profile.name
-                    binding.tvProfileMeta.text = "${profile.location} • Member since ${profile.memberSince}"
-                    binding.tvStatListed.text = profile.booksListed.toString()
-                    binding.tvStatSold.text = profile.booksSold.toString()
-                    binding.tvStatSwapped.text = profile.booksExchanged.toString()
+            UserManager.currentUserFlow.collectLatest { profile ->
+                val user = profile ?: UserManager.currentUser
+                if (user != null) {
+                    isAdminMode = user.isAdmin
+                    binding.tvProfileName.text = user.name
+                    binding.tvProfileMeta.text = "${user.location} • ${user.email}"
+                    binding.tvStatListed.text = user.booksListed.toString()
+                    binding.tvStatSold.text = user.booksSold.toString()
+                    binding.tvStatSwapped.text = user.booksExchanged.toString()
 
                     binding.switchAdminMode.setOnCheckedChangeListener(null)
-                    binding.switchAdminMode.isChecked = profile.isAdmin
+                    binding.switchAdminMode.isChecked = user.isAdmin
                     binding.switchAdminMode.setOnCheckedChangeListener { _, isChecked ->
                         updateAdminMode(isChecked)
                     }
-                    updateAdminVisibility(profile.isAdmin)
+                    updateAdminVisibility(user.isAdmin)
                 }
+            }
         }
     }
 
@@ -69,21 +74,9 @@ class ProfileFragment : Fragment() {
         isAdminMode = isChecked
         updateAdminVisibility(isChecked)
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                FirestoreRepository.toggleAdminRole("user_default", isChecked)
-                val modeText = if (isChecked) "Admin Mode Activated" else "Standard User Mode"
-                Toast.makeText(requireContext(), modeText, Toast.LENGTH_SHORT).show()
-            } catch (e: Exception) {
-                isAdminMode = previousState
-                binding.switchAdminMode.setOnCheckedChangeListener(null)
-                binding.switchAdminMode.isChecked = previousState
-                binding.switchAdminMode.setOnCheckedChangeListener { _, checked ->
-                    updateAdminMode(checked)
-                }
-                updateAdminVisibility(previousState)
-                Toast.makeText(requireContext(), "Error updating role: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
+        UserManager.setAdminMode(isChecked) {
+            val modeText = if (isChecked) "Admin Mode Activated (Full Control)" else "Standard User Mode"
+            Toast.makeText(requireContext(), modeText, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -101,6 +94,10 @@ class ProfileFragment : Fragment() {
             showBroadcastDialog()
         }
 
+        binding.btnAdminManageBooks.setOnClickListener {
+            showAdminManageBooksDialog()
+        }
+
         binding.rowMyListings.setOnClickListener {
             startActivity(Intent(requireContext(), SellBookActivity::class.java))
         }
@@ -114,16 +111,21 @@ class ProfileFragment : Fragment() {
             startActivity(Intent(requireContext(), NotificationsActivity::class.java))
         }
 
-        binding.rowLanguage.setOnClickListener {
-            Toast.makeText(requireContext(), "Language changed to English / বাংলা", Toast.LENGTH_SHORT).show()
-        }
 
         binding.rowHelp.setOnClickListener {
             Toast.makeText(requireContext(), "BoiBinimoy Support Hotline: support@boibinimoy.com", Toast.LENGTH_LONG).show()
         }
 
         binding.btnLogout.setOnClickListener {
-            Toast.makeText(requireContext(), "Logged out successfully", Toast.LENGTH_SHORT).show()
+            AlertDialog.Builder(requireContext())
+                .setTitle("Log Out")
+                .setMessage("Are you sure you want to log out from BoiBinimoy?")
+                .setPositiveButton("Log Out") { _, _ ->
+                    UserManager.signOut(requireContext())
+                    Toast.makeText(requireContext(), "Logged out successfully", Toast.LENGTH_SHORT).show()
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
     }
 
@@ -152,20 +154,53 @@ class ProfileFragment : Fragment() {
             btnSend.isEnabled = false
             btnSend.text = "Sending..."
 
+            // Also add to local notifications immediately for instant feedback
+            BookRepository.addNotification(
+                NotificationItem(
+                    id = "broadcast_${System.currentTimeMillis()}",
+                    title = title,
+                    message = msg,
+                    timestamp = "Just now",
+                    type = NotificationType.SYSTEM.name,
+                    isRead = false
+                )
+            )
+
             viewLifecycleOwner.lifecycleScope.launch {
                 try {
                     FirestoreRepository.sendBroadcastNotification(title, msg)
                     Toast.makeText(requireContext(), "Broadcast notification sent to all users!", Toast.LENGTH_LONG).show()
                     dialog.dismiss()
                 } catch (e: Exception) {
-                    btnSend.isEnabled = true
-                    btnSend.text = "Send Broadcast"
-                    Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    // Even if Firestore network fails, local repository is updated
+                    Toast.makeText(requireContext(), "Broadcast posted locally! (${e.message ?: "offline mode"})", Toast.LENGTH_LONG).show()
+                    dialog.dismiss()
                 }
             }
         }
 
         dialog.show()
+    }
+
+    private fun showAdminManageBooksDialog() {
+        val books = BookRepository.getAllBooks()
+        val totalBooks = books.size
+        val soldCount = books.count { it.isSold }
+        val activeCount = totalBooks - soldCount
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Platform Books Overview (Admin)")
+            .setMessage(
+                "• Total Books in Catalog: $totalBooks\n" +
+                "• Active Listings: $activeCount\n" +
+                "• Sold Out Books: $soldCount\n\n" +
+                "As Admin, you can open any book in the Search or Detail screen to Mark as Sold or Delete the listing permanently."
+            )
+            .setPositiveButton("Browse & Moderate Books") { _, _ ->
+                (activity as? MainActivity)?.navigateToSearch()
+            }
+            .setNegativeButton("Close", null)
+            .show()
     }
 
     override fun onDestroyView() {

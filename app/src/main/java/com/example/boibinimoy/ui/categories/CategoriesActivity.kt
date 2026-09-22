@@ -74,10 +74,14 @@ class CategoriesActivity : AppCompatActivity() {
                 .collect { firestoreCategories ->
                     if (firestoreCategories.isNotEmpty()) {
                         val merged = firestoreCategories.map { fsCat ->
-                            val local = localCategories.find { it.name == fsCat.name }
+                            val local = localCategories.find { it.name.equals(fsCat.name, ignoreCase = true) }
+                            val resolvedName = fsCat.name.ifBlank { local?.name ?: "" }
+                            val resolvedIcon = BookRepository.resolveCategoryIcon(resolvedName)
+                            val resolvedColor = BookRepository.resolveCategoryColor(resolvedName)
                             fsCat.copy(
-                                iconResId = local?.iconResId ?: fsCat.iconResId,
-                                backgroundColor = local?.backgroundColor ?: fsCat.backgroundColor
+                                name = resolvedName,
+                                iconResId = resolvedIcon,
+                                backgroundColor = resolvedColor
                             )
                         }
                         adapter.updateData(merged)

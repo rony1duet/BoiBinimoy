@@ -9,8 +9,10 @@
 
     <!-- Top App Bar -->
     <RelativeLayout
+        android:id="@+id/layoutChatHeader"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="wrap_content"
+        android:minHeight="56dp"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:background="@color/white"
@@ -100,7 +102,7 @@
                 android:id="@+id/tvContextTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="The Alchemist"
+                tools:text="The Alchemist"
                 android:textColor="@color/text_primary"
                 android:textSize="13sp"
                 android:textStyle="bold" />
@@ -109,7 +111,7 @@
                 android:id="@+id/tvContextPrice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="৳ 250 • Open for Exchange"
+                tools:text="৳ 250 • Open for Exchange"
                 android:textColor="@color/primary_green"
                 android:textSize="11sp" />
 
@@ -185,7 +187,7 @@
                 android:paddingEnd="12dp"
                 android:paddingTop="6dp"
                 android:paddingBottom="6dp"
-                android:text="Can we meet at TSC / Dhanmondi?"
+                android:text="Where can we meet?"
                 android:textColor="@color/text_primary"
                 android:textSize="12sp"
                 android:clickable="true"
@@ -213,6 +215,7 @@
 
     <!-- Message Input Bar -->
     <LinearLayout
+        android:id="@+id/layoutChatInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"

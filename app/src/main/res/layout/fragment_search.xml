@@ -50,8 +50,9 @@
                 android:id="@+id/btnClearSearch"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:src="@drawable/ic_tune_filter"
+                android:src="@drawable/ic_close"
                 app:tint="@color/text_muted"
+                android:contentDescription="Clear search"
                 android:visibility="gone"
                 android:clickable="true"
                 android:focusable="true" />

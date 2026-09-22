@@ -106,100 +106,71 @@
 
         </LinearLayout>
 
-        <!-- Hero Promotional Card Banner -->
+        <!-- Moveable Hero Carousel Section (3 Swipeable Slides) -->
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="170dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginTop="16dp">
+            android:layout_height="175dp"
+            android:layout_marginTop="14dp">
 
-            <LinearLayout
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/vp2Hero"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@drawable/bg_hero_card"
-                android:orientation="horizontal"
-                android:padding="16dp">
+                android:clipToPadding="false"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp" />
 
-                <!-- Left Content -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1.2"
-                    android:gravity="center_vertical"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Give Books\nA New Life"
-                        android:textColor="@color/white"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:lineSpacingExtra="2dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:text="Buy, sell and discover\ngreat books around you."
-                        android:textColor="#D1F2D9"
-                        android:textSize="11sp"
-                        android:lineSpacingExtra="1dp" />
-
-                    <!-- Sell Your Book CTA Button -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnHeroSell"
-                        android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/sell_your_book"
-                        android:textColor="@color/white"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
-                        app:cornerRadius="18dp"
-                        app:backgroundTint="@color/primary_green_pill"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp" />
-
-                </LinearLayout>
-
-                <!-- Right 3D Books & Plant Illustration -->
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/ic_hero_books_plant"
-                    android:contentDescription="Hero Books and Plant" />
-
-            </LinearLayout>
-
-            <!-- Carousel Indicator Dots -->
+            <!-- Carousel Indicator Dots (Dynamically Synced & Clickable) -->
             <LinearLayout
+                android:id="@+id/layoutHeroDots"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="32dp"
                 android:layout_gravity="bottom|center_horizontal"
-                android:layout_marginBottom="8dp"
-                android:gravity="center_vertical"
+                android:layout_marginBottom="4dp"
+                android:gravity="center"
                 android:orientation="horizontal">
 
-                <View
-                    android:layout_width="14dp"
-                    android:layout_height="6dp"
-                    android:background="@drawable/bg_carousel_dot_active" />
+                <FrameLayout
+                    android:id="@+id/btnDot1"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <View
+                        android:id="@+id/dotHero1"
+                        android:layout_width="18dp"
+                        android:layout_height="6dp"
+                        android:layout_gravity="center"
+                        android:background="@drawable/bg_carousel_dot_active" />
+                </FrameLayout>
 
-                <View
-                    android:layout_width="6dp"
-                    android:layout_height="6dp"
-                    android:layout_marginStart="4dp"
-                    android:background="@drawable/bg_carousel_dot_inactive" />
+                <FrameLayout
+                    android:id="@+id/btnDot2"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <View
+                        android:id="@+id/dotHero2"
+                        android:layout_width="6dp"
+                        android:layout_height="6dp"
+                        android:layout_gravity="center"
+                        android:background="@drawable/bg_carousel_dot_inactive" />
+                </FrameLayout>
 
-                <View
-                    android:layout_width="6dp"
-                    android:layout_height="6dp"
-                    android:layout_marginStart="4dp"
-                    android:background="@drawable/bg_carousel_dot_inactive" />
+                <FrameLayout
+                    android:id="@+id/btnDot3"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <View
+                        android:id="@+id/dotHero3"
+                        android:layout_width="6dp"
+                        android:layout_height="6dp"
+                        android:layout_gravity="center"
+                        android:background="@drawable/bg_carousel_dot_inactive" />
+                </FrameLayout>
 
             </LinearLayout>
 
@@ -297,62 +268,7 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/item_featured_book" />
 
-        <!-- Safe & Trusted Banner -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginTop="18dp"
-            android:background="@drawable/bg_trust_card"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="14dp">
 
-            <!-- Shield Icon on Left -->
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_trust_shield"
-                android:contentDescription="Trust Shield" />
-
-            <!-- Text Content -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="12dp"
-                android:layout_marginEnd="8dp"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/safe_and_trusted"
-                    android:textColor="@color/text_primary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="@string/safe_trusted_desc"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp"
-                    android:lineSpacingExtra="1dp" />
-
-            </LinearLayout>
-
-            <!-- Lock and Leaves on Right -->
-            <ImageView
-                android:layout_width="55dp"
-                android:layout_height="46dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_trust_lock"
-                android:contentDescription="Trust Lock" />
-
-        </LinearLayout>
 
         <!-- Recently Added Section -->
         <RelativeLayout

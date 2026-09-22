@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -12,7 +14,10 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import com.example.boibinimoy.data.UserManager
 import com.example.boibinimoy.databinding.ActivityMainBinding
+import kotlinx.coroutines.launch
 import com.example.boibinimoy.ui.cart.CartFragment
 import com.example.boibinimoy.ui.categories.CategoriesActivity
 import com.example.boibinimoy.ui.home.HomeFragment
@@ -20,6 +25,7 @@ import com.example.boibinimoy.ui.notifications.NotificationsActivity
 import com.example.boibinimoy.ui.profile.ProfileFragment
 import com.example.boibinimoy.ui.search.SearchFragment
 import com.example.boibinimoy.ui.sell.SellBookActivity
+import java.util.ArrayDeque
 
 class MainActivity : AppCompatActivity() {
 
@@ -34,8 +40,17 @@ class MainActivity : AppCompatActivity() {
     private val profileFragment = ProfileFragment()
     private var activeFragment: Fragment = homeFragment
 
+    private val fragmentBackStack = ArrayDeque<Fragment>()
+    private var backPressedTime: Long = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (!UserManager.isLoggedIn()) {
+            startActivity(Intent(this, com.example.boibinimoy.ui.auth.LoginActivity::class.java))
+            finish()
+            return
+        }
+
         enableEdgeToEdge()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -44,8 +59,28 @@ class MainActivity : AppCompatActivity() {
         setupFragments()
         setupBottomNavigation()
         setupDrawerNavigation()
+        setupBackPressHandler()
+        observeDrawerUser()
         binding.navigationView.setCheckedItem(R.id.menu_home)
         handleIntent(intent)
+    }
+
+    private fun observeDrawerUser() {
+        val headerView = binding.navigationView.getHeaderView(0)
+        val tvName = headerView?.findViewById<TextView>(R.id.tvDrawerUserName)
+        val tvEmail = headerView?.findViewById<TextView>(R.id.tvDrawerUserEmail)
+        val tvAdminBadge = headerView?.findViewById<TextView>(R.id.tvDrawerAdminBadge)
+
+        lifecycleScope.launch {
+            UserManager.currentUserFlow.collect { profile ->
+                val user = profile ?: UserManager.currentUser
+                if (user != null) {
+                    tvName?.text = user.name
+                    tvEmail?.text = user.email
+                    tvAdminBadge?.visibility = if (user.isAdmin) android.view.View.VISIBLE else android.view.View.GONE
+                }
+            }
+        }
     }
 
     private fun setupWindowInsets() {
@@ -103,12 +138,10 @@ class MainActivity : AppCompatActivity() {
     private fun setupBottomNavigation() {
         binding.navTabHome.setOnClickListener {
             switchFragment(homeFragment)
-            highlightTab(binding.ivNavHome, binding.tvNavHome)
         }
 
         binding.navTabSearch.setOnClickListener {
             switchFragment(searchFragment)
-            highlightTab(binding.ivNavSearch, binding.tvNavSearch)
         }
 
         binding.navTabSell.setOnClickListener {
@@ -117,22 +150,46 @@ class MainActivity : AppCompatActivity() {
 
         binding.navTabCart.setOnClickListener {
             switchFragment(cartFragment)
-            highlightTab(binding.ivNavCart, binding.tvNavCart)
         }
 
         binding.navTabProfile.setOnClickListener {
             switchFragment(profileFragment)
-            highlightTab(binding.ivNavProfile, binding.tvNavProfile)
         }
     }
 
-    private fun switchFragment(target: Fragment) {
+    private fun switchFragment(target: Fragment, addToBackStack: Boolean = true) {
         if (activeFragment != target) {
+            if (addToBackStack) {
+                if (fragmentBackStack.isEmpty() || fragmentBackStack.last != activeFragment) {
+                    fragmentBackStack.addLast(activeFragment)
+                }
+            }
             supportFragmentManager.beginTransaction()
                 .hide(activeFragment)
                 .show(target)
                 .commit()
             activeFragment = target
+            syncTabHighlight(target)
+        }
+    }
+
+    private fun syncTabHighlight(target: Fragment) {
+        when (target) {
+            homeFragment -> {
+                highlightTab(binding.ivNavHome, binding.tvNavHome)
+                binding.navigationView.setCheckedItem(R.id.menu_home)
+            }
+            searchFragment -> {
+                highlightTab(binding.ivNavSearch, binding.tvNavSearch)
+            }
+            cartFragment -> {
+                highlightTab(binding.ivNavCart, binding.tvNavCart)
+                binding.navigationView.setCheckedItem(R.id.menu_exchange_hub)
+            }
+            profileFragment -> {
+                highlightTab(binding.ivNavProfile, binding.tvNavProfile)
+                binding.navigationView.setCheckedItem(R.id.menu_profile)
+            }
         }
     }
 
@@ -167,12 +224,10 @@ class MainActivity : AppCompatActivity() {
 
     fun navigateToSearch() {
         switchFragment(searchFragment)
-        highlightTab(binding.ivNavSearch, binding.tvNavSearch)
     }
 
     fun navigateToSearchWithCategory(categoryName: String) {
         switchFragment(searchFragment)
-        highlightTab(binding.ivNavSearch, binding.tvNavSearch)
         searchFragment.filterByCategory(categoryName)
     }
 
@@ -182,29 +237,72 @@ class MainActivity : AppCompatActivity() {
             when (menuItem.itemId) {
                 R.id.menu_home -> {
                     switchFragment(homeFragment)
-                    highlightTab(binding.ivNavHome, binding.tvNavHome)
                 }
                 R.id.menu_profile -> {
                     switchFragment(profileFragment)
-                    highlightTab(binding.ivNavProfile, binding.tvNavProfile)
                 }
                 R.id.menu_categories -> {
                     startActivity(Intent(this, CategoriesActivity::class.java))
                 }
                 R.id.menu_exchange_hub -> {
                     switchFragment(cartFragment)
-                    highlightTab(binding.ivNavCart, binding.tvNavCart)
                 }
                 R.id.menu_notifications -> {
                     startActivity(Intent(this, NotificationsActivity::class.java))
                 }
-                R.id.menu_safety -> {
-                    switchFragment(homeFragment)
-                    highlightTab(binding.ivNavHome, binding.tvNavHome)
+                R.id.menu_logout -> {
+                    UserManager.signOut(this)
                 }
             }
             menuItem.isChecked = true
             true
         }
+    }
+
+    private fun setupBackPressHandler() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // 1. If navigation drawer is open, close it
+                if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    binding.drawerLayout.closeDrawer(GravityCompat.START)
+                    return
+                }
+
+                // 2. Fragment-specific back press handling
+                if (activeFragment == searchFragment && searchFragment.handleBackPress()) {
+                    return
+                }
+                if (activeFragment == cartFragment && cartFragment.handleBackPress()) {
+                    return
+                }
+
+                // 3. Navigate back through fragment history if available
+                while (fragmentBackStack.isNotEmpty()) {
+                    val prevFragment = fragmentBackStack.removeLast()
+                    if (prevFragment != activeFragment) {
+                        switchFragment(prevFragment, addToBackStack = false)
+                        return
+                    }
+                }
+
+                // 4. If on another tab but stack is empty, return to Home tab
+                if (activeFragment != homeFragment) {
+                    switchFragment(homeFragment, addToBackStack = false)
+                    return
+                }
+
+                // 5. On Home tab: double back press within 2000ms to exit app
+                if (backPressedTime + 2000 > System.currentTimeMillis()) {
+                    finish()
+                } else {
+                    backPressedTime = System.currentTimeMillis()
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Press back again to exit BoiBinimoy",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        })
     }
 }

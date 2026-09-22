@@ -17,8 +17,12 @@ import com.example.boibinimoy.ui.adapter.CategoryAdapter
 import com.example.boibinimoy.ui.adapter.FeaturedBookAdapter
 import com.example.boibinimoy.ui.categories.CategoriesActivity
 import com.example.boibinimoy.ui.detail.BookDetailActivity
+import com.example.boibinimoy.R
 import com.example.boibinimoy.ui.notifications.NotificationsActivity
 import com.example.boibinimoy.ui.sell.SellBookActivity
+import com.example.boibinimoy.ui.adapter.HeroSlideAdapter
+import com.example.boibinimoy.ui.adapter.HeroSlideItem
+import androidx.viewpager2.widget.ViewPager2
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
@@ -29,6 +33,7 @@ class HomeFragment : Fragment() {
 
     private var featuredAdapter: FeaturedBookAdapter? = null
     private var recentAdapter: FeaturedBookAdapter? = null
+    private var categoryAdapter: CategoryAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -68,18 +73,99 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupHeroBanner() {
-        binding.btnHeroSell.setOnClickListener {
-            startActivity(Intent(requireContext(), SellBookActivity::class.java))
+        val slides = listOf(
+            HeroSlideItem(
+                title = "Give Books\nA New Life",
+                subtitle = "Buy, sell and discover\ngreat books around you.",
+                buttonText = "Sell Your Book",
+                bgDrawableRes = R.drawable.bg_hero_card,
+                onActionClick = {
+                    startActivity(Intent(requireContext(), SellBookActivity::class.java))
+                }
+            ),
+            HeroSlideItem(
+                title = "100% Free Book\nExchange & Swap",
+                subtitle = "Trade novels, academic text\n& storybooks at 0% fee.",
+                buttonText = "Explore Swaps",
+                bgDrawableRes = R.drawable.bg_hero_card_blue,
+                onActionClick = {
+                    (activity as? MainActivity)?.navigateToSearch()
+                }
+            ),
+            HeroSlideItem(
+                title = "Join 1,200+ Readers\nin Bangladesh",
+                subtitle = "Find pre-loved reads from\nstudents & book lovers.",
+                buttonText = "Browse Books",
+                bgDrawableRes = R.drawable.bg_hero_card_purple,
+                onActionClick = {
+                    (activity as? MainActivity)?.navigateToSearch()
+                }
+            )
+        )
+
+        binding.vp2Hero.adapter = HeroSlideAdapter(slides)
+
+        // Ensure smooth horizontal dragging inside NestedScrollView
+        var startX = 0f
+        var startY = 0f
+        binding.vp2Hero.getChildAt(0)?.setOnTouchListener { v, event ->
+            when (event.action) {
+                android.view.MotionEvent.ACTION_DOWN -> {
+                    startX = event.x
+                    startY = event.y
+                    v.parent.requestDisallowInterceptTouchEvent(true)
+                }
+                android.view.MotionEvent.ACTION_MOVE -> {
+                    val dx = kotlin.math.abs(event.x - startX)
+                    val dy = kotlin.math.abs(event.y - startY)
+                    if (dx > dy && dx > 10f) {
+                        v.parent.requestDisallowInterceptTouchEvent(true)
+                    } else if (dy > dx && dy > 10f) {
+                        v.parent.requestDisallowInterceptTouchEvent(false)
+                    }
+                }
+                android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> {
+                    v.parent.requestDisallowInterceptTouchEvent(false)
+                }
+            }
+            false
+        }
+
+        binding.vp2Hero.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                updateHeroDots(position)
+            }
+        })
+
+        // Dot click support
+        binding.btnDot1.setOnClickListener { binding.vp2Hero.setCurrentItem(0, true) }
+        binding.btnDot2.setOnClickListener { binding.vp2Hero.setCurrentItem(1, true) }
+        binding.btnDot3.setOnClickListener { binding.vp2Hero.setCurrentItem(2, true) }
+    }
+
+    private fun updateHeroDots(activeIndex: Int) {
+        val density = resources.displayMetrics.density
+        val activeWidth = (18 * density).toInt()
+        val inactiveWidth = (6 * density).toInt()
+
+        val dots = listOf(binding.dotHero1, binding.dotHero2, binding.dotHero3)
+        dots.forEachIndexed { index, dot ->
+            val isActive = index == activeIndex
+            dot.setBackgroundResource(if (isActive) R.drawable.bg_carousel_dot_active else R.drawable.bg_carousel_dot_inactive)
+            val params = dot.layoutParams
+            params.width = if (isActive) activeWidth else inactiveWidth
+            dot.layoutParams = params
         }
     }
 
     private fun setupCategoriesFromFirestore() {
         // Show local data immediately while Firestore loads
         val localCategories = BookRepository.getCategories()
-        val adapter = CategoryAdapter(localCategories.toMutableList()) { category ->
+        categoryAdapter = CategoryAdapter(localCategories.toMutableList()) { category ->
             (activity as? MainActivity)?.navigateToSearchWithCategory(category.name)
         }
-        binding.rvCategories.adapter = adapter
+        binding.rvCategories.adapter = categoryAdapter
 
         // Update with Firestore data
         viewLifecycleOwner.lifecycleScope.launch {
@@ -90,14 +176,17 @@ class HomeFragment : Fragment() {
                 .collect { firestoreCategories ->
                     if (firestoreCategories.isNotEmpty()) {
                         val firestoreCatsWithIcons = firestoreCategories.map { fsCat ->
-                            // Map icon from local fallback by name
-                            val localMatch = localCategories.find { it.name == fsCat.name }
+                            val localMatch = localCategories.find { it.name.equals(fsCat.name, ignoreCase = true) }
+                            val resolvedName = fsCat.name.ifBlank { localMatch?.name ?: "" }
+                            val resolvedIcon = BookRepository.resolveCategoryIcon(resolvedName)
+                            val resolvedColor = BookRepository.resolveCategoryColor(resolvedName)
                             fsCat.copy(
-                                iconResId = localMatch?.iconResId ?: fsCat.iconResId,
-                                backgroundColor = localMatch?.backgroundColor ?: fsCat.backgroundColor
+                                name = resolvedName,
+                                iconResId = resolvedIcon,
+                                backgroundColor = resolvedColor
                             )
                         }
-                        adapter.updateData(firestoreCatsWithIcons)
+                        categoryAdapter?.updateData(firestoreCatsWithIcons)
                     }
                 }
         }
@@ -116,7 +205,8 @@ class HomeFragment : Fragment() {
             localFeatured.toMutableList(),
             onBookClick = { openBookDetail(it) },
             onFavoriteClick = { book, _ ->
-                val msg = "Added ${book.title} to wishlist!"
+                val isFavorite = BookRepository.toggleFavorite(book.id)
+                val msg = if (isFavorite) "Added ${book.title} to wishlist!" else "Removed ${book.title} from wishlist"
                 Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
             }
         )
@@ -126,7 +216,9 @@ class HomeFragment : Fragment() {
             localRecent.toMutableList(),
             onBookClick = { openBookDetail(it) },
             onFavoriteClick = { book, _ ->
-                Toast.makeText(requireContext(), "Added ${book.title} to wishlist!", Toast.LENGTH_SHORT).show()
+                val isFavorite = BookRepository.toggleFavorite(book.id)
+                val msg = if (isFavorite) "Added ${book.title} to wishlist!" else "Removed ${book.title} from wishlist"
+                Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
             }
         )
         binding.rvRecentBooks.adapter = recentAdapter
@@ -136,20 +228,13 @@ class HomeFragment : Fragment() {
             FirestoreRepository.getBooks()
                 .catch { /* keep showing local data */ }
                 .collect { books ->
-                    if (books.isNotEmpty()) {
-                        // Use local cover drawable as fallback based on title matching
-                        val booksWithCovers = books.map { book ->
-                            val local = localFeatured.find { it.title == book.title }
-                                ?: localRecent.find { it.title == book.title }
-                            book.copy(coverResId = local?.coverResId ?: book.coverResId)
-                        }
-                        // Split: first 4 featured, rest recent
-                        val featured = booksWithCovers.take(4)
-                        val recent = booksWithCovers.drop(4).take(6)
+                    BookRepository.setBooks(books)
+                    val featured = books.take(4)
+                    val recent = books.drop(4).take(6)
 
-                        featuredAdapter?.updateData(featured)
-                        recentAdapter?.updateData(if (recent.isEmpty()) booksWithCovers.take(4) else recent)
-                    }
+                    featuredAdapter?.updateData(featured)
+                    recentAdapter?.updateData(if (recent.isEmpty()) books.take(4) else recent)
+                    categoryAdapter?.notifyDataSetChanged()
                 }
         }
 
@@ -167,6 +252,13 @@ class HomeFragment : Fragment() {
                 putExtra(BookDetailActivity.EXTRA_BOOK, book)
             }
         )
+    }
+
+    override fun onResume() {
+        super.onResume()
+        featuredAdapter?.updateData(BookRepository.getFeaturedBooks())
+        recentAdapter?.updateData(BookRepository.getRecentBooks())
+        categoryAdapter?.notifyDataSetChanged()
     }
 
     override fun onDestroyView() {

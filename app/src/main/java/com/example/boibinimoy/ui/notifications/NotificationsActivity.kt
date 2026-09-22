@@ -43,8 +43,19 @@ class NotificationsActivity : AppCompatActivity() {
 
         binding.rvNotifications.layoutManager = LinearLayoutManager(this)
         binding.rvNotifications.adapter = adapter
+        updateEmptyState(localNotifications.size)
 
         observeFirestoreNotifications()
+    }
+
+    private fun updateEmptyState(count: Int) {
+        if (count == 0) {
+            binding.layoutNotifEmpty.visibility = android.view.View.VISIBLE
+            binding.rvNotifications.visibility = android.view.View.GONE
+        } else {
+            binding.layoutNotifEmpty.visibility = android.view.View.GONE
+            binding.rvNotifications.visibility = android.view.View.VISIBLE
+        }
     }
 
     private fun observeFirestoreNotifications() {
@@ -55,6 +66,7 @@ class NotificationsActivity : AppCompatActivity() {
                     if (notifications.isNotEmpty()) {
                         adapter.updateData(notifications)
                     }
+                    updateEmptyState(notifications.size.coerceAtLeast(BookRepository.getNotifications().size))
                 }
         }
     }

@@ -60,6 +60,8 @@ class SearchFragment : Fragment() {
     fun filterByCategory(categoryName: String) {
         val normalizedCategory = categoryName.trim()
         currentCategory = if (normalizedCategory.isBlank() || normalizedCategory.equals("All", ignoreCase = true)) null else normalizedCategory
+        currentMaxPrice = null
+        currentCondition = null
 
         val chipId = when (normalizedCategory) {
             "Fiction" -> R.id.chipFiction
@@ -104,14 +106,9 @@ class SearchFragment : Fragment() {
             FirestoreRepository.getBooks()
                 .catch { }
                 .collect { books ->
-                    if (books.isNotEmpty()) {
-                        val localBooks = BookRepository.getAllBooks()
-                        allBooksList = books.map { fsBook ->
-                            val local = localBooks.find { it.title == fsBook.title }
-                            fsBook.copy(coverResId = local?.coverResId ?: fsBook.coverResId)
-                        }
-                        performSearch()
-                    }
+                    BookRepository.setBooks(books)
+                    allBooksList = books
+                    performSearch()
                 }
         }
     }
@@ -259,7 +256,24 @@ class SearchFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        allBooksList = BookRepository.getAllBooks()
         performSearch()
+    }
+
+    fun handleBackPress(): Boolean {
+        if (_binding != null && binding.etSearchQuery.text.isNotEmpty()) {
+            binding.etSearchQuery.text.clear()
+            return true
+        }
+        if (currentCategory != null || currentMaxPrice != null || currentCondition != null) {
+            currentCategory = null
+            currentMaxPrice = null
+            currentCondition = null
+            binding.chipGroupFilters.check(R.id.chipAll)
+            performSearch()
+            return true
+        }
+        return false
     }
 
     override fun onDestroyView() {

@@ -130,7 +130,7 @@
                     android:id="@+id/tvDetailTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="The Alchemist"
+                    tools:text="The Alchemist"
                     android:textColor="@color/text_primary"
                     android:textSize="22sp"
                     android:textStyle="bold" />
@@ -140,7 +140,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="by Paulo Coelho"
+                    tools:text="by Paulo Coelho"
                     android:textColor="@color/text_secondary"
                     android:textSize="14sp" />
 
@@ -474,7 +474,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
-                                android:text="Dhanmondi, Dhaka • Active 15m ago"
+                                tools:text="Dhanmondi, Dhaka • Active 15m ago"
                                 android:textColor="@color/text_muted"
                                 android:textSize="11sp" />
 
@@ -578,7 +578,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:text="The Alchemist follows the journey of an Andalusian shepherd boy named Santiago..."
+                    tools:text="The Alchemist follows the journey of an Andalusian shepherd boy named Santiago..."
                     android:textColor="@color/text_secondary"
                     android:textSize="13sp"
                     android:lineSpacingExtra="3dp" />
@@ -591,14 +591,18 @@
 
     <!-- Sticky Bottom Bar -->
     <LinearLayout
+        android:id="@+id/layoutBottomBar"
         android:layout_width="match_parent"
-        android:layout_height="68dp"
+        android:layout_height="wrap_content"
+        android:minHeight="68dp"
         android:layout_gravity="bottom"
         android:background="@color/white"
         android:elevation="10dp"
         android:orientation="horizontal"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
         android:gravity="center_vertical">
 
         <!-- Exchange CTA -->

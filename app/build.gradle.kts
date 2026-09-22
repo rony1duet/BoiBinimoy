@@ -52,7 +52,8 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
-    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.storage)
+    implementation(libs.coil)
 
     // Coroutines (for Firestore suspend/flow wrappers)
     implementation(libs.kotlinx.coroutines.android)
