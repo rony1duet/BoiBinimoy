@@ -58,13 +58,23 @@ class SearchFragment : Fragment() {
     }
 
     fun filterByCategory(categoryName: String) {
-        currentCategory = categoryName
-        when (categoryName) {
-            "Fiction" -> binding.chipFiction.isChecked = true
-            "Academic" -> binding.chipAcademic.isChecked = true
-            "Business" -> binding.chipBusiness.isChecked = true
-            "Historical" -> binding.chipHistorical.isChecked = true
-            else -> binding.chipAll.isChecked = true
+        val normalizedCategory = categoryName.trim()
+        currentCategory = if (normalizedCategory.isBlank() || normalizedCategory.equals("All", ignoreCase = true)) null else normalizedCategory
+
+        val chipId = when (normalizedCategory) {
+            "Fiction" -> R.id.chipFiction
+            "Academic" -> R.id.chipAcademic
+            "Business" -> R.id.chipBusiness
+            "Historical" -> R.id.chipHistorical
+            "Science" -> R.id.chipScience
+            "Poetry" -> R.id.chipPoetry
+            "Comics" -> R.id.chipComics
+            "Islamic" -> R.id.chipIslamic
+            else -> R.id.chipAll
+        }
+
+        if (chipId != R.id.chipAll || binding.chipGroupFilters.checkedChipId != R.id.chipAll) {
+            binding.chipGroupFilters.check(chipId)
         }
         performSearch()
     }
@@ -143,6 +153,22 @@ class SearchFragment : Fragment() {
                 }
                 R.id.chipHistorical -> {
                     currentCategory = "Historical"
+                    currentMaxPrice = null
+                }
+                R.id.chipScience -> {
+                    currentCategory = "Science"
+                    currentMaxPrice = null
+                }
+                R.id.chipPoetry -> {
+                    currentCategory = "Poetry"
+                    currentMaxPrice = null
+                }
+                R.id.chipComics -> {
+                    currentCategory = "Comics"
+                    currentMaxPrice = null
+                }
+                R.id.chipIslamic -> {
+                    currentCategory = "Islamic"
                     currentMaxPrice = null
                 }
                 R.id.chipUnder200 -> {

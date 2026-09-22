@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:gravity="center_horizontal"
-    android:layout_marginEnd="14dp">
+    android:paddingStart="6dp"
+    android:paddingEnd="6dp"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardCategory"
         android:layout_width="64dp"
         android:layout_height="64dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="0dp"
-        app:strokeWidth="0dp"
-        app:cardBackgroundColor="@color/primary_green_mint"
+        app:cardCornerRadius="18dp"
+        app:cardElevation="2dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="#E5E7EB"
+        app:cardBackgroundColor="@color/white"
         android:clickable="true"
         android:focusable="true">
 
@@ -25,7 +30,7 @@
             android:layout_gravity="center"
             android:src="@drawable/ic_cat_academic"
             app:tint="@color/primary_green"
-            android:contentDescription="Category Icon" />
+            android:contentDescription="@string/categories" />
 
     </com.google.android.material.card.MaterialCardView>
 
@@ -34,9 +39,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Academic"
         android:textColor="@color/text_primary"
         android:textSize="13sp"
-        android:fontFamily="sans-serif-medium" />
+        android:textStyle="bold"
+        android:gravity="center"
+        tools:text="Academic" />
 
 </LinearLayout>

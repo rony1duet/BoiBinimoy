@@ -24,6 +24,7 @@ class ProfileFragment : Fragment() {
 
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
+    private var isAdminMode = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,45 +47,58 @@ class ProfileFragment : Fragment() {
             FirestoreRepository.getUserProfile("user_default")
                 .catch { }
                 .collect { profile ->
+                    isAdminMode = profile.isAdmin
                     binding.tvProfileName.text = profile.name
                     binding.tvProfileMeta.text = "${profile.location} • Member since ${profile.memberSince}"
                     binding.tvStatListed.text = profile.booksListed.toString()
                     binding.tvStatSold.text = profile.booksSold.toString()
                     binding.tvStatSwapped.text = profile.booksExchanged.toString()
 
+                    binding.switchAdminMode.setOnCheckedChangeListener(null)
                     binding.switchAdminMode.isChecked = profile.isAdmin
-                    binding.tvAdminBadge.visibility = if (profile.isAdmin) View.VISIBLE else View.GONE
-                    binding.cardAdminPanel.visibility = if (profile.isAdmin) View.VISIBLE else View.GONE
+                    binding.switchAdminMode.setOnCheckedChangeListener { _, isChecked ->
+                        updateAdminMode(isChecked)
+                    }
+                    updateAdminVisibility(profile.isAdmin)
                 }
         }
     }
 
+    private fun updateAdminMode(isChecked: Boolean) {
+        val previousState = isAdminMode
+        isAdminMode = isChecked
+        updateAdminVisibility(isChecked)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                FirestoreRepository.toggleAdminRole("user_default", isChecked)
+                val modeText = if (isChecked) "Admin Mode Activated" else "Standard User Mode"
+                Toast.makeText(requireContext(), modeText, Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                isAdminMode = previousState
+                binding.switchAdminMode.setOnCheckedChangeListener(null)
+                binding.switchAdminMode.isChecked = previousState
+                binding.switchAdminMode.setOnCheckedChangeListener { _, checked ->
+                    updateAdminMode(checked)
+                }
+                updateAdminVisibility(previousState)
+                Toast.makeText(requireContext(), "Error updating role: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun updateAdminVisibility(isAdmin: Boolean) {
+        binding.tvAdminBadge.visibility = if (isAdmin) View.VISIBLE else View.GONE
+        binding.cardAdminPanel.visibility = if (isAdmin) View.VISIBLE else View.GONE
+    }
+
     private fun setupListeners() {
         binding.switchAdminMode.setOnCheckedChangeListener { _, isChecked ->
-            viewLifecycleOwner.lifecycleScope.launch {
-                try {
-                    FirestoreRepository.toggleAdminRole("user_default", isChecked)
-                    val modeText = if (isChecked) "Admin Mode Activated" else "Standard User Mode"
-                    Toast.makeText(requireContext(), modeText, Toast.LENGTH_SHORT).show()
-                } catch (e: Exception) {
-                    Toast.makeText(requireContext(), "Error updating role: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
+            updateAdminMode(isChecked)
         }
 
         binding.btnAdminBroadcast.setOnClickListener {
             showBroadcastDialog()
-        }
-
-        binding.btnAdminSeedData.setOnClickListener {
-            viewLifecycleOwner.lifecycleScope.launch {
-                try {
-                    FirestoreRepository.seedIfEmpty()
-                    Toast.makeText(requireContext(), "Firestore Sample Data Seeded!", Toast.LENGTH_SHORT).show()
-                } catch (e: Exception) {
-                    Toast.makeText(requireContext(), "Error seeding: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
         }
 
         binding.rowMyListings.setOnClickListener {

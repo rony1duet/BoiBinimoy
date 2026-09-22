@@ -5,11 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:fitsSystemWindows="true"
-    android:background="@color/background_light">
+    android:background="@color/background_light"
+    tools:context=".ui.categories.CategoriesActivity">
 
     <!-- Top App Bar -->
     <RelativeLayout
+        android:id="@+id/layoutCatHeader"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:paddingStart="16dp"
@@ -47,6 +48,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="16dp"
+        android:paddingBottom="24dp"
         android:clipToPadding="false"
         tools:listitem="@layout/item_category" />
 

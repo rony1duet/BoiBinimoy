@@ -134,6 +134,34 @@
                 style="@style/Widget.Material3.Chip.Filter" />
 
             <com.google.android.material.chip.Chip
+                android:id="@+id/chipScience"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Science"
+                style="@style/Widget.Material3.Chip.Filter" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipPoetry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Poetry"
+                style="@style/Widget.Material3.Chip.Filter" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipComics"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Comics"
+                style="@style/Widget.Material3.Chip.Filter" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipIslamic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Islamic"
+                style="@style/Widget.Material3.Chip.Filter" />
+
+            <com.google.android.material.chip.Chip
                 android:id="@+id/chipUnder200"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

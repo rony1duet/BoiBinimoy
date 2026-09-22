@@ -11,14 +11,5 @@ class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         FirebaseApp.initializeApp(this)
-
-        // Seed Firestore with mock data if collections are empty (first launch)
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                FirestoreRepository.seedIfEmpty()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
     }
 }

@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity() {
         setupFragments()
         setupBottomNavigation()
         setupDrawerNavigation()
+        binding.navigationView.setCheckedItem(R.id.menu_home)
         handleIntent(intent)
     }
 
@@ -53,24 +54,24 @@ class MainActivity : AppCompatActivity() {
             val navBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
 
             val density = resources.displayMetrics.density
-            val baseNavHeightPx = (65 * density).toInt()
+            val baseNavHeightPx = (64 * density).toInt()
+            val navPaddingBottom = navBars.bottom + (6 * density).toInt()
+            val topInset = systemBars.top
 
-            // Padding bottom for bottomNavContainer so tab icons sit ABOVE the gesture bar
             binding.bottomNavContainer.setPadding(
                 binding.bottomNavContainer.paddingLeft,
                 (4 * density).toInt(),
                 binding.bottomNavContainer.paddingRight,
-                navBars.bottom + (4 * density).toInt()
+                navPaddingBottom
             )
 
             val navParams = binding.bottomNavContainer.layoutParams
             navParams.height = baseNavHeightPx + navBars.bottom
             binding.bottomNavContainer.layoutParams = navParams
 
-            // Set fragment container margin so fragment scrollable content is not obscured
             val fragmentParams = binding.fragmentContainer.layoutParams as ViewGroup.MarginLayoutParams
             fragmentParams.bottomMargin = navParams.height
-            fragmentParams.topMargin = systemBars.top
+            fragmentParams.topMargin = topInset
             binding.fragmentContainer.layoutParams = fragmentParams
 
             insets
@@ -183,6 +184,10 @@ class MainActivity : AppCompatActivity() {
                     switchFragment(homeFragment)
                     highlightTab(binding.ivNavHome, binding.tvNavHome)
                 }
+                R.id.menu_profile -> {
+                    switchFragment(profileFragment)
+                    highlightTab(binding.ivNavProfile, binding.tvNavProfile)
+                }
                 R.id.menu_categories -> {
                     startActivity(Intent(this, CategoriesActivity::class.java))
                 }
@@ -198,6 +203,7 @@ class MainActivity : AppCompatActivity() {
                     highlightTab(binding.ivNavHome, binding.tvNavHome)
                 }
             }
+            menuItem.isChecked = true
             true
         }
     }
