@@ -339,6 +339,70 @@
 
             </LinearLayout>
 
+            <!-- Admin / Seller Management Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardAdminBookControls"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginTop="16dp"
+                android:visibility="gone"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="3dp"
+                app:strokeWidth="1.5dp"
+                app:strokeColor="@color/heart_red"
+                app:cardBackgroundColor="@color/white">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="⚡ Admin / Seller Management"
+                        android:textColor="@color/heart_red"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnMarkSold"
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            android:text="Mark as Sold"
+                            android:textColor="@color/text_primary"
+                            android:textSize="12sp"
+                            app:cornerRadius="20dp"
+                            style="@style/Widget.Material3.Button.OutlinedButton" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnDeleteBookListing"
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_weight="1"
+                            android:text="Delete Listing"
+                            android:textColor="@color/white"
+                            android:textSize="12sp"
+                            app:cornerRadius="20dp"
+                            app:backgroundTint="@color/heart_red" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- Seller Profile Card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"

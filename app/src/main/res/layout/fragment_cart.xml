@@ -20,14 +20,14 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:text="Cart &amp; Swaps"
+            android:text="Cart, Swaps &amp; Requests"
             android:textColor="@color/text_primary"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
 
     </RelativeLayout>
 
-    <!-- Tab Buttons -->
+    <!-- Tab Buttons (3 Tabs) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="44dp"
@@ -45,9 +45,9 @@
             android:background="@drawable/bg_pill_button"
             android:backgroundTint="@color/primary_green"
             android:gravity="center"
-            android:text="🛒 Cart (2)"
+            android:text="🛒 Cart"
             android:textColor="@color/white"
-            android:textSize="13sp"
+            android:textSize="12sp"
             android:textStyle="bold"
             android:clickable="true"
             android:focusable="true" />
@@ -58,9 +58,21 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="🔄 Swaps (2)"
+            android:text="🔄 Swaps"
             android:textColor="@color/text_secondary"
-            android:textSize="13sp"
+            android:textSize="12sp"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:id="@+id/tabRequests"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="📖 Requests"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
             android:clickable="true"
             android:focusable="true" />
 
@@ -135,7 +147,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_alignParentEnd="true"
-                                android:text="৳ 530"
+                                android:text="৳ 0"
                                 android:textColor="@color/text_primary"
                                 android:textSize="13sp"
                                 android:textStyle="bold" />
@@ -156,6 +168,7 @@
                                 android:textSize="13sp" />
 
                             <TextView
+                                android:id="@+id/tvDeliveryFee"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_alignParentEnd="true"
@@ -191,7 +204,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_alignParentEnd="true"
-                                android:text="৳ 580"
+                                android:text="৳ 0"
                                 android:textColor="@color/primary_green"
                                 android:textSize="18sp"
                                 android:textStyle="bold" />
@@ -247,5 +260,34 @@
             tools:listitem="@layout/item_exchange_request" />
 
     </LinearLayout>
+
+    <!-- Book Requests Content Container -->
+    <RelativeLayout
+        android:id="@+id/layoutRequestsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp"
+        android:visibility="gone">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvBookRequests"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/btnPostBookRequest"
+            tools:listitem="@layout/item_book_request" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPostBookRequest"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_alignParentBottom="true"
+            android:text="➕ Post a Book Request"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:cornerRadius="24dp"
+            app:backgroundTint="@color/primary_green" />
+
+    </RelativeLayout>
 
 </LinearLayout>

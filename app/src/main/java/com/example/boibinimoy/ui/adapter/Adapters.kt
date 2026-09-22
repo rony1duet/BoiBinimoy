@@ -195,13 +195,19 @@ class CartAdapter(
 
 // 5. Exchange Requests Adapter
 class ExchangeRequestAdapter(
-    private val requests: List<ExchangeRequest>,
+    private val requests: MutableList<ExchangeRequest>,
     private val onAccept: (ExchangeRequest) -> Unit,
     private val onDecline: (ExchangeRequest) -> Unit,
     private val onChat: (ExchangeRequest) -> Unit
 ) : RecyclerView.Adapter<ExchangeRequestAdapter.ExchangeViewHolder>() {
 
     inner class ExchangeViewHolder(val binding: ItemExchangeRequestBinding) : RecyclerView.ViewHolder(binding.root)
+
+    fun updateData(newRequests: List<ExchangeRequest>) {
+        requests.clear()
+        requests.addAll(newRequests)
+        notifyDataSetChanged()
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ExchangeViewHolder {
         val binding = ItemExchangeRequestBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -215,7 +221,6 @@ class ExchangeRequestAdapter(
             tvExchangeLocation.text = "📍 ${req.userLocation} • ${req.date}"
             tvExchangeStatus.text = req.status
 
-            // covers via local fallback — Firestore exchange requests use IDs
             tvOfferedTitle.text = req.offeredBookTitle
             tvRequestedTitle.text = req.requestedBookTitle
 
@@ -246,13 +251,60 @@ class ExchangeRequestAdapter(
     override fun getItemCount(): Int = requests.size
 }
 
-// 6. Notifications Adapter
+// 6. Book Requests Adapter (User Request a Book feature)
+class BookRequestAdapter(
+    private val requests: MutableList<BookRequest>,
+    private val isAdmin: Boolean,
+    private val onOfferBook: (BookRequest) -> Unit,
+    private val onDeleteRequest: (BookRequest) -> Unit
+) : RecyclerView.Adapter<BookRequestAdapter.BookRequestViewHolder>() {
+
+    inner class BookRequestViewHolder(val binding: ItemBookRequestBinding) : RecyclerView.ViewHolder(binding.root)
+
+    fun updateData(newRequests: List<BookRequest>) {
+        requests.clear()
+        requests.addAll(newRequests)
+        notifyDataSetChanged()
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookRequestViewHolder {
+        val binding = ItemBookRequestBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return BookRequestViewHolder(binding)
+    }
+
+    override fun onBindViewHolder(holder: BookRequestViewHolder, position: Int) {
+        val req = requests[position]
+        with(holder.binding) {
+            tvRequestTitle.text = "Wanted: ${req.bookTitle}"
+            tvRequestAuthorCategory.text = "by ${req.author} • Category: ${req.category}"
+            tvRequestUserLocation.text = "👤 ${req.requesterName} • 📍 ${req.requesterLocation}"
+            tvRequestPrice.text = "Budget: ~৳ ${req.maxPrice}"
+            tvRequestNote.text = if (req.note.isNotBlank()) "\"${req.note}\"" else "\"Looking for this book. Please contact me if you have it!\""
+            tvRequestBadge.text = req.status
+
+            btnDeleteRequest.visibility = if (isAdmin) View.VISIBLE else View.GONE
+            btnDeleteRequest.setOnClickListener { onDeleteRequest(req) }
+
+            btnOfferBook.setOnClickListener { onOfferBook(req) }
+        }
+    }
+
+    override fun getItemCount(): Int = requests.size
+}
+
+// 7. Notifications Adapter
 class NotificationAdapter(
-    private val notifications: List<NotificationItem>,
+    private val notifications: MutableList<NotificationItem>,
     private val onNotificationClick: (NotificationItem) -> Unit
 ) : RecyclerView.Adapter<NotificationAdapter.NotifViewHolder>() {
 
     inner class NotifViewHolder(val binding: ItemNotificationBinding) : RecyclerView.ViewHolder(binding.root)
+
+    fun updateData(newNotifs: List<NotificationItem>) {
+        notifications.clear()
+        notifications.addAll(newNotifs)
+        notifyDataSetChanged()
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotifViewHolder {
         val binding = ItemNotificationBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -279,7 +331,7 @@ class NotificationAdapter(
     override fun getItemCount(): Int = notifications.size
 }
 
-// 7. Chat Messages Adapter
+// 8. Chat Messages Adapter
 class ChatAdapter(
     private val messages: MutableList<ChatMessage>
 ) : RecyclerView.Adapter<ChatAdapter.ChatViewHolder>() {

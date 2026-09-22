@@ -15,7 +15,7 @@ data class Book(
     val price: Int = 0,
     val originalPrice: Int = 0,
     val coverResId: Int = 0,          // local drawable fallback
-    val coverUrl: String = "",        // Firestore / Storage URL (future)
+    val coverUrl: String = "",        // Firestore / Storage URL
     val category: String = "",
     val condition: String = "Good",
     val location: String = "",
@@ -32,7 +32,9 @@ data class Book(
     val language: String = "English",
     val publishedYear: String = "2020",
     val pageCount: Int = 200,
-    val isbn: String = ""
+    val isbn: String = "",
+    val isSold: Boolean = false,
+    val sellerId: String = "user_default"
 ) : Serializable
 
 data class Category(
@@ -56,6 +58,29 @@ data class ExchangeRequest(
     val message: String = ""
 ) : Serializable
 
+data class BookRequest(
+    val id: String = "",
+    val bookTitle: String = "",
+    val author: String = "",
+    val category: String = "General",
+    val maxPrice: Int = 250,
+    val requesterName: String = "Riad Hasan",
+    val requesterLocation: String = "Dhanmondi, Dhaka",
+    val note: String = "",
+    val timestamp: String = "Just now",
+    val status: String = "OPEN"       // OPEN, FULFILLED, CLOSED
+) : Serializable
+
+data class OrderItem(
+    val id: String = "",
+    val items: List<CartItem> = emptyList(),
+    val totalAmount: Int = 0,
+    val orderDate: String = "",
+    val status: String = "CONFIRMED",
+    val userName: String = "Riad Hasan",
+    val deliveryAddress: String = "Dhanmondi, Dhaka"
+) : Serializable
+
 data class CartItem(
     val book: Book = Book(),
     var quantity: Int = 1
@@ -76,16 +101,17 @@ data class NotificationItem(
     val title: String = "",
     val message: String = "",
     val timestamp: String = "",
-    val type: String = "SYSTEM",     // EXCHANGE, PRICE_DROP, MESSAGE, ORDER, SYSTEM
-    var isRead: Boolean = false
+    val type: String = "SYSTEM",     // EXCHANGE, PRICE_DROP, MESSAGE, ORDER, SYSTEM, BOOK_REQUEST
+    var isRead: Boolean = false,
+    val userId: String = "default"
 ) : Serializable
 
 enum class NotificationType {
-    EXCHANGE, PRICE_DROP, MESSAGE, ORDER, SYSTEM
+    EXCHANGE, PRICE_DROP, MESSAGE, ORDER, SYSTEM, BOOK_REQUEST
 }
 
 data class UserProfile(
-    val id: String = "",
+    val id: String = "user_default",
     val name: String = "Riad Hasan",
     val email: String = "riad.hasan@example.com",
     val phone: String = "+880 1712-345678",
@@ -97,5 +123,6 @@ data class UserProfile(
     val booksListed: Int = 12,
     val booksSold: Int = 28,
     val booksExchanged: Int = 15,
-    val totalSavingsTaka: Int = 3450
+    val totalSavingsTaka: Int = 3450,
+    val isAdmin: Boolean = false
 ) : Serializable

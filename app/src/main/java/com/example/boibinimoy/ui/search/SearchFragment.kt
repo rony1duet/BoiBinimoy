@@ -11,9 +11,11 @@ import android.widget.RadioButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.boibinimoy.R
 import com.example.boibinimoy.data.BookRepository
+import com.example.boibinimoy.data.FirestoreRepository
 import com.example.boibinimoy.databinding.FragmentSearchBinding
 import com.example.boibinimoy.model.Book
 import com.example.boibinimoy.ui.adapter.BookGridAdapter
@@ -21,6 +23,8 @@ import com.example.boibinimoy.ui.detail.BookDetailActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.slider.Slider
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.launch
 
 class SearchFragment : Fragment() {
 
@@ -28,6 +32,8 @@ class SearchFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var bookGridAdapter: BookGridAdapter
+    private var allBooksList: List<Book> = emptyList()
+
     private var currentCategory: String? = null
     private var currentMaxPrice: Int? = null
     private var currentCondition: String? = null
@@ -48,7 +54,7 @@ class SearchFragment : Fragment() {
         setupSearchInput()
         setupFilterChips()
         setupFilterButton()
-        performSearch()
+        observeFirestoreBooks()
     }
 
     fun filterByCategory(categoryName: String) {
@@ -64,8 +70,9 @@ class SearchFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
+        allBooksList = BookRepository.getAllBooks()
         bookGridAdapter = BookGridAdapter(
-            emptyList(),
+            allBooksList,
             onBookClick = { book ->
                 val intent = Intent(requireContext(), BookDetailActivity::class.java).apply {
                     putExtra(BookDetailActivity.EXTRA_BOOK, book)
@@ -80,6 +87,23 @@ class SearchFragment : Fragment() {
         )
         binding.rvSearchResults.layoutManager = GridLayoutManager(requireContext(), 2)
         binding.rvSearchResults.adapter = bookGridAdapter
+    }
+
+    private fun observeFirestoreBooks() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            FirestoreRepository.getBooks()
+                .catch { }
+                .collect { books ->
+                    if (books.isNotEmpty()) {
+                        val localBooks = BookRepository.getAllBooks()
+                        allBooksList = books.map { fsBook ->
+                            val local = localBooks.find { it.title == fsBook.title }
+                            fsBook.copy(coverResId = local?.coverResId ?: fsBook.coverResId)
+                        }
+                        performSearch()
+                    }
+                }
+        }
     }
 
     private fun setupSearchInput() {
@@ -181,12 +205,18 @@ class SearchFragment : Fragment() {
 
     private fun performSearch() {
         val query = binding.etSearchQuery.text.toString().trim()
-        val results = BookRepository.searchBooks(
-            query = query,
-            category = currentCategory,
-            maxPrice = currentMaxPrice,
-            condition = currentCondition
-        )
+        val results = allBooksList.filter { book ->
+            val matchesQuery = query.isBlank() ||
+                book.title.contains(query, ignoreCase = true) ||
+                book.author.contains(query, ignoreCase = true) ||
+                book.category.contains(query, ignoreCase = true)
+
+            val matchesCategory = currentCategory.isNullOrBlank() || currentCategory.equals("All", ignoreCase = true) || book.category.equals(currentCategory, ignoreCase = true)
+            val matchesPrice = currentMaxPrice == null || book.price <= currentMaxPrice!!
+            val matchesCondition = currentCondition.isNullOrBlank() || currentCondition.equals("All", ignoreCase = true) || book.condition.equals(currentCondition, ignoreCase = true)
+
+            matchesQuery && matchesCategory && matchesPrice && matchesCondition
+        }
 
         bookGridAdapter.updateBooks(results)
 

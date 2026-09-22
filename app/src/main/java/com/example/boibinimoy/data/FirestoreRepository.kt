@@ -1,10 +1,7 @@
 package com.example.boibinimoy.data
 
 import com.example.boibinimoy.R
-import com.example.boibinimoy.model.Book
-import com.example.boibinimoy.model.Category
-import com.example.boibinimoy.model.ChatMessage
-import com.example.boibinimoy.model.NotificationItem
+import com.example.boibinimoy.model.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.channels.awaitClose
@@ -24,9 +21,12 @@ object FirestoreRepository {
     private val chatsRef = db.collection("chats")
     private val notificationsRef = db.collection("notifications")
     private val usersRef = db.collection("users")
+    private val exchangeRequestsRef = db.collection("exchange_requests")
+    private val bookRequestsRef = db.collection("book_requests")
+    private val ordersRef = db.collection("orders")
 
     // -----------------------------------------------------------------------
-    // Books
+    // Books (CRUD & Admin)
     // -----------------------------------------------------------------------
 
     /** Real-time Flow of all books */
@@ -64,6 +64,20 @@ object FirestoreRepository {
         return docRef.id
     }
 
+    /** Admin / Seller: Delete a book from Firestore */
+    suspend fun deleteBook(bookId: String) {
+        if (bookId.isNotBlank()) {
+            booksRef.document(bookId).delete().await()
+        }
+    }
+
+    /** Admin / Seller: Mark a book as sold */
+    suspend fun markBookAsSold(bookId: String) {
+        if (bookId.isNotBlank()) {
+            booksRef.document(bookId).update("isSold", true).await()
+        }
+    }
+
     // -----------------------------------------------------------------------
     // Categories
     // -----------------------------------------------------------------------
@@ -89,6 +103,103 @@ object FirestoreRepository {
         } catch (e: Exception) {
             BookRepository.getCategories()
         }
+    }
+
+    // -----------------------------------------------------------------------
+    // Exchange Requests
+    // -----------------------------------------------------------------------
+
+    fun getExchangeRequests(): Flow<List<ExchangeRequest>> = callbackFlow {
+        val listener = exchangeRequestsRef
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) { close(error); return@addSnapshotListener }
+                val reqs = snapshot?.documents?.mapNotNull { doc ->
+                    doc.toObject(ExchangeRequest::class.java)?.copy(id = doc.id)
+                } ?: emptyList()
+                trySend(reqs)
+            }
+        awaitClose { listener.remove() }
+    }
+
+    suspend fun addExchangeRequest(req: ExchangeRequest): String {
+        val docRef = if (req.id.isBlank()) exchangeRequestsRef.document() else exchangeRequestsRef.document(req.id)
+        val newReq = req.copy(id = docRef.id)
+        docRef.set(newReq).await()
+        return docRef.id
+    }
+
+    suspend fun updateExchangeStatus(requestId: String, status: String) {
+        if (requestId.isNotBlank()) {
+            exchangeRequestsRef.document(requestId).update("status", status).await()
+        }
+    }
+
+    suspend fun deleteExchangeRequest(requestId: String) {
+        if (requestId.isNotBlank()) {
+            exchangeRequestsRef.document(requestId).delete().await()
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Book Requests (User "Request a Book" Feature)
+    // -----------------------------------------------------------------------
+
+    fun getBookRequests(): Flow<List<BookRequest>> = callbackFlow {
+        val listener = bookRequestsRef
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) { close(error); return@addSnapshotListener }
+                val reqs = snapshot?.documents?.mapNotNull { doc ->
+                    doc.toObject(BookRequest::class.java)?.copy(id = doc.id)
+                } ?: emptyList()
+                trySend(reqs)
+            }
+        awaitClose { listener.remove() }
+    }
+
+    suspend fun addBookRequest(request: BookRequest): String {
+        val docRef = if (request.id.isBlank()) bookRequestsRef.document() else bookRequestsRef.document(request.id)
+        val newReq = request.copy(id = docRef.id)
+        docRef.set(newReq).await()
+
+        // Also broadcast a notification for new book request
+        sendNotification(
+            NotificationItem(
+                title = "New Book Request Posted 📖",
+                message = "${request.requesterName} requested '${request.bookTitle}' by ${request.author}",
+                timestamp = "Just now",
+                type = NotificationType.BOOK_REQUEST.name
+            )
+        )
+
+        return docRef.id
+    }
+
+    suspend fun deleteBookRequest(requestId: String) {
+        if (requestId.isNotBlank()) {
+            bookRequestsRef.document(requestId).delete().await()
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Orders
+    // -----------------------------------------------------------------------
+
+    suspend fun addOrder(order: OrderItem): String {
+        val docRef = ordersRef.document()
+        val newOrder = order.copy(id = docRef.id)
+        docRef.set(newOrder).await()
+
+        // Trigger Order Confirmation Notification
+        sendNotification(
+            NotificationItem(
+                title = "Order Placed Successfully! ✅",
+                message = "Your order #${docRef.id.take(8).uppercase()} for ${order.items.size} book(s) total ৳${order.totalAmount} has been placed.",
+                timestamp = "Just now",
+                type = NotificationType.ORDER.name
+            )
+        )
+
+        return docRef.id
     }
 
     // -----------------------------------------------------------------------
@@ -124,7 +235,6 @@ object FirestoreRepository {
 
     fun getNotifications(userId: String = "default"): Flow<List<NotificationItem>> = callbackFlow {
         val listener = notificationsRef
-            .whereEqualTo("userId", userId)
             .orderBy("timestamp")
             .addSnapshotListener { snapshot, error ->
                 if (error != null) { close(error); return@addSnapshotListener }
@@ -134,6 +244,48 @@ object FirestoreRepository {
                 trySend(notifs)
             }
         awaitClose { listener.remove() }
+    }
+
+    suspend fun sendNotification(notif: NotificationItem): String {
+        val docRef = notificationsRef.document()
+        val newNotif = notif.copy(id = docRef.id)
+        docRef.set(newNotif).await()
+        return docRef.id
+    }
+
+    suspend fun sendBroadcastNotification(title: String, message: String): String {
+        return sendNotification(
+            NotificationItem(
+                title = title,
+                message = message,
+                timestamp = "Just now",
+                type = NotificationType.SYSTEM.name,
+                isRead = false,
+                userId = "default"
+            )
+        )
+    }
+
+    // -----------------------------------------------------------------------
+    // User Profile & Admin Role
+    // -----------------------------------------------------------------------
+
+    fun getUserProfile(userId: String = "user_default"): Flow<UserProfile> = callbackFlow {
+        val listener = usersRef.document(userId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) { close(error); return@addSnapshotListener }
+                val profile = snapshot?.toObject(UserProfile::class.java) ?: UserProfile(id = userId)
+                trySend(profile)
+            }
+        awaitClose { listener.remove() }
+    }
+
+    suspend fun updateUserProfile(profile: UserProfile) {
+        usersRef.document(profile.id).set(profile).await()
+    }
+
+    suspend fun toggleAdminRole(userId: String = "user_default", isAdmin: Boolean) {
+        usersRef.document(userId).update("isAdmin", isAdmin).await()
     }
 
     // -----------------------------------------------------------------------
@@ -156,6 +308,18 @@ object FirestoreRepository {
         val chatsSnap = chatsRef.document("demo_chat").collection("messages").limit(1).get().await()
         if (chatsSnap.isEmpty) {
             seedChat()
+        }
+        val exSnap = exchangeRequestsRef.limit(1).get().await()
+        if (exSnap.isEmpty) {
+            seedExchangeRequests()
+        }
+        val bkReqSnap = bookRequestsRef.limit(1).get().await()
+        if (bkReqSnap.isEmpty) {
+            seedBookRequests()
+        }
+        val userSnap = usersRef.document("user_default").get().await()
+        if (!userSnap.exists()) {
+            usersRef.document("user_default").set(UserProfile()).await()
         }
     }
 
@@ -250,97 +414,6 @@ object FirestoreRepository {
                 publishedYear = "2018",
                 pageCount = 319,
                 isbn = "978-0735211292"
-            ),
-            Book(
-                title = "Padma Nadir Majhi",
-                author = "Manik Bandyopadhyay",
-                price = 150,
-                originalPrice = 320,
-                coverResId = R.drawable.cover_padma_nadir,
-                category = "Fiction",
-                condition = "Acceptable",
-                location = "Old Dhaka",
-                sellerName = "Karim Uddin",
-                sellerRating = 4.3,
-                sellerReviewCount = 8,
-                sellerResponseTime = "Within a day",
-                isSellerVerified = false,
-                isExchangeAvailable = true,
-                exchangeLookingFor = "Any Bengali Classic",
-                description = "পদ্মা নদীর মাঝি — মাণিক বন্দ্যোপাধ্যায়ের লেখা একটি বিখ্যাত উপন্যাস যা পদ্মা নদীর জেলেদের জীবনকে কেন্দ্র করে।",
-                publisher = "Ananda Publishers",
-                language = "Bengali",
-                publishedYear = "1936",
-                pageCount = 256,
-                isbn = "978-8177567021"
-            ),
-            Book(
-                title = "Debi",
-                author = "Humayun Ahmed",
-                price = 120,
-                originalPrice = 250,
-                coverResId = R.drawable.cover_debi,
-                category = "Fiction",
-                condition = "Good",
-                location = "Uttara, Dhaka",
-                sellerName = "Nadia Rahman",
-                sellerRating = 4.6,
-                sellerReviewCount = 19,
-                sellerResponseTime = "Within 3 hours",
-                isSellerVerified = true,
-                isExchangeAvailable = false,
-                description = "দেবী — হুমায়ূন আহমেদের মিসির আলি সিরিজের একটি জনপ্রিয় উপন্যাস।",
-                publisher = "Anyaprakash",
-                language = "Bengali",
-                publishedYear = "1985",
-                pageCount = 180,
-                isbn = "978-9840410070"
-            ),
-            Book(
-                title = "Think and Grow Rich",
-                author = "Napoleon Hill",
-                price = 180,
-                originalPrice = 400,
-                coverResId = R.drawable.cover_rich_dad,  // reuse cover
-                category = "Business",
-                condition = "Good",
-                location = "Mohakhali, Dhaka",
-                sellerName = "Arif Hossain",
-                sellerRating = 4.4,
-                sellerReviewCount = 12,
-                sellerResponseTime = "Within 2 hours",
-                isSellerVerified = false,
-                isExchangeAvailable = true,
-                exchangeLookingFor = "Any self-help book",
-                description = "Napoleon Hill's timeless classic on achieving success through the power of thought, desire, faith, and persistence.",
-                publisher = "Sound Wisdom",
-                language = "English",
-                publishedYear = "1937",
-                pageCount = 238,
-                isbn = "978-0143110583"
-            ),
-            Book(
-                title = "1984",
-                author = "George Orwell",
-                price = 220,
-                originalPrice = 480,
-                coverResId = R.drawable.cover_alchemist,  // reuse cover
-                category = "Fiction",
-                condition = "Like New",
-                location = "Khilgaon, Dhaka",
-                sellerName = "Tasneem Haque",
-                sellerRating = 4.8,
-                sellerReviewCount = 31,
-                sellerResponseTime = "Within 1 hour",
-                isSellerVerified = true,
-                isExchangeAvailable = true,
-                exchangeLookingFor = "Brave New World or Animal Farm",
-                description = "A dystopian social science fiction novel following the life of Winston Smith in a totalitarian society ruled by Big Brother.",
-                publisher = "Secker & Warburg",
-                language = "English",
-                publishedYear = "1949",
-                pageCount = 328,
-                isbn = "978-0451524935"
             )
         )
 
@@ -384,22 +457,6 @@ object FirestoreRepository {
                 "type" to "PRICE_DROP",
                 "isRead" to false,
                 "userId" to "default"
-            ),
-            mapOf(
-                "title" to "New Message",
-                "message" to "Tanvir: 'Is The Alchemist still available?'",
-                "timestamp" to "1 hour ago",
-                "type" to "MESSAGE",
-                "isRead" to true,
-                "userId" to "default"
-            ),
-            mapOf(
-                "title" to "Order Confirmed ✅",
-                "message" to "Your order for 'Debi' has been confirmed. Seller will contact you soon.",
-                "timestamp" to "Yesterday",
-                "type" to "ORDER",
-                "isRead" to true,
-                "userId" to "default"
             )
         )
         for (notif in notifs) {
@@ -425,28 +482,50 @@ object FirestoreRepository {
                 "timestamp" to (System.currentTimeMillis() - 3500000),
                 "isMe" to true,
                 "chatId" to "demo_chat"
-            ),
-            mapOf(
-                "senderName" to "Tanvir Ahmed",
-                "senderId" to "seller_001",
-                "message" to "Great! Can we meet at Dhanmondi tomorrow?",
-                "timestamp" to (System.currentTimeMillis() - 3400000),
-                "isMe" to false,
-                "chatId" to "demo_chat"
-            ),
-            mapOf(
-                "senderName" to "You",
-                "senderId" to "me",
-                "message" to "Sure, 5 PM works for me! I'll be at Dhanmondi Lake.",
-                "timestamp" to (System.currentTimeMillis() - 3300000),
-                "isMe" to true,
-                "chatId" to "demo_chat"
             )
         )
         val chatMsgsRef = chatsRef.document("demo_chat").collection("messages")
         for (msg in messages) {
             val docRef = chatMsgsRef.document()
             chatMsgsRef.document(docRef.id).set(msg + mapOf("id" to docRef.id)).await()
+        }
+    }
+
+    private suspend fun seedExchangeRequests() {
+        val reqs = listOf(
+            ExchangeRequest(
+                requestedBookTitle = "The Alchemist",
+                offeredBookTitle = "Sapiens",
+                userName = "Kazi Shakil",
+                userLocation = "Bashundhara R/A, Dhaka",
+                status = "PENDING",
+                date = "Today, 4:30 PM",
+                message = "Hi! I have Sapiens in great condition. Would love to swap for The Alchemist."
+            )
+        )
+        for (r in reqs) {
+            val docRef = exchangeRequestsRef.document()
+            docRef.set(r.copy(id = docRef.id)).await()
+        }
+    }
+
+    private suspend fun seedBookRequests() {
+        val reqs = listOf(
+            BookRequest(
+                bookTitle = "Deep Work",
+                author = "Cal Newport",
+                category = "Business",
+                maxPrice = 250,
+                requesterName = "Riad Hasan",
+                requesterLocation = "Dhanmondi, Dhaka",
+                note = "Looking for a clean copy. Willing to pay cash or trade.",
+                timestamp = "2 hours ago",
+                status = "OPEN"
+            )
+        )
+        for (r in reqs) {
+            val docRef = bookRequestsRef.document()
+            docRef.set(r.copy(id = docRef.id)).await()
         }
     }
 }

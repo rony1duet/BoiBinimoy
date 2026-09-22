@@ -15,13 +15,31 @@
         android:paddingBottom="32dp">
 
         <!-- Top Header -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="My Profile"
-            android:textColor="@color/text_primary"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:text="My Profile"
+                android:textColor="@color/text_primary"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchAdminMode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:text="Admin Mode "
+                android:textColor="@color/primary_green"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+        </RelativeLayout>
 
         <!-- User Profile Card -->
         <com.google.android.material.card.MaterialCardView
@@ -83,9 +101,27 @@
                                 android:layout_marginStart="6dp"
                                 android:src="@drawable/ic_check_circle" />
 
+                            <TextView
+                                android:id="@+id/tvAdminBadge"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="6dp"
+                                android:background="@drawable/bg_pill_button"
+                                android:backgroundTint="@color/heart_red"
+                                android:paddingStart="6dp"
+                                android:paddingTop="2dp"
+                                android:paddingEnd="6dp"
+                                android:paddingBottom="2dp"
+                                android:text="ADMIN"
+                                android:textColor="@color/white"
+                                android:textSize="10sp"
+                                android:textStyle="bold"
+                                android:visibility="gone" />
+
                         </LinearLayout>
 
                         <TextView
+                            android:id="@+id/tvProfileMeta"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
@@ -114,6 +150,7 @@
                         android:orientation="vertical">
 
                         <TextView
+                            android:id="@+id/tvStatListed"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="12"
@@ -144,6 +181,7 @@
                         android:orientation="vertical">
 
                         <TextView
+                            android:id="@+id/tvStatSold"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="28"
@@ -174,6 +212,7 @@
                         android:orientation="vertical">
 
                         <TextView
+                            android:id="@+id/tvStatSwapped"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="15"
@@ -190,6 +229,76 @@
                             android:textSize="11sp" />
 
                     </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Admin Management Panel Card (Visible when Admin Mode ON) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardAdminPanel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:visibility="gone"
+            app:cardCornerRadius="18dp"
+            app:cardElevation="3dp"
+            app:strokeWidth="1.5dp"
+            app:strokeColor="@color/heart_red"
+            app:cardBackgroundColor="@color/white">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⚡ Admin Management Console"
+                    android:textColor="@color/heart_red"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Full platform control enabled. Manage content, requests, and send alerts."
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="vertical">
+
+                    <!-- Broadcast Notification -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnAdminBroadcast"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"
+                        android:text="📢 Send Broadcast Notification"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        app:cornerRadius="22dp"
+                        app:backgroundTint="@color/primary_green" />
+
+                    <!-- Seed / Reset Firestore -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnAdminSeedData"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"
+                        android:layout_marginTop="8dp"
+                        android:text="🌱 Seed Default Sample Data"
+                        android:textColor="@color/text_primary"
+                        android:textSize="12sp"
+                        app:cornerRadius="22dp"
+                        style="@style/Widget.Material3.Button.OutlinedButton" />
 
                 </LinearLayout>
 
@@ -245,7 +354,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginStart="14dp"
-                        android:text="My Book Listings"
+                        android:text="Sell / List a New Book"
                         android:textColor="@color/text_primary"
                         android:textSize="14sp" />
 
@@ -284,7 +393,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginStart="14dp"
-                        android:text="Saved Wishlist"
+                        android:text="Browse Catalog &amp; Wishlist"
                         android:textColor="@color/text_primary"
                         android:textSize="14sp" />
 

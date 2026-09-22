@@ -1,21 +1,21 @@
 package com.example.boibinimoy.ui.detail
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updateLayoutParams
+import androidx.lifecycle.lifecycleScope
 import com.example.boibinimoy.R
 import com.example.boibinimoy.data.BookRepository
+import com.example.boibinimoy.data.FirestoreRepository
 import com.example.boibinimoy.databinding.ActivityBookDetailBinding
 import com.example.boibinimoy.model.Book
 import com.example.boibinimoy.model.ExchangeRequest
 import com.example.boibinimoy.ui.chat.ChatActivity
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.launch
 
 class BookDetailActivity : AppCompatActivity() {
 
@@ -31,7 +31,7 @@ class BookDetailActivity : AppCompatActivity() {
         binding = ActivityBookDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        currentBook = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+        currentBook = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getSerializableExtra(EXTRA_BOOK, Book::class.java)
         } else {
             @Suppress("DEPRECATION")
@@ -43,12 +43,13 @@ class BookDetailActivity : AppCompatActivity() {
         }
 
         bindBookDetails(currentBook!!)
+        observeAdminRole()
         setupListeners(currentBook!!)
     }
 
     private fun bindBookDetails(book: Book) {
         with(binding) {
-            ivDetailCover.setImageResource(book.coverResId)
+            if (book.coverResId != 0) ivDetailCover.setImageResource(book.coverResId)
             tvDetailTitle.text = book.title
             tvDetailAuthor.text = "by ${book.author}"
             tvDetailPrice.text = "৳ ${book.price}"
@@ -72,7 +73,24 @@ class BookDetailActivity : AppCompatActivity() {
                 layoutExchangeInfo.visibility = View.GONE
             }
 
+            if (book.isSold) {
+                tvDetailConditionBadge.text = "SOLD OUT"
+                btnBuyNow.isEnabled = false
+                btnBuyNow.text = "Sold Out"
+                btnProposeExchange.isEnabled = false
+            }
+
             updateFavoriteIcon(book.isFavorite)
+        }
+    }
+
+    private fun observeAdminRole() {
+        lifecycleScope.launch {
+            FirestoreRepository.getUserProfile("user_default")
+                .catch { }
+                .collect { profile ->
+                    binding.cardAdminBookControls.visibility = if (profile.isAdmin) View.VISIBLE else View.GONE
+                }
         }
     }
 
@@ -103,7 +121,6 @@ class BookDetailActivity : AppCompatActivity() {
         binding.btnProposeExchange.setOnClickListener {
             val offered = BookRepository.getAllBooks().firstOrNull { it.id != book.id } ?: book
             val req = ExchangeRequest(
-                id = "req_${System.currentTimeMillis()}",
                 requestedBookId = book.id,
                 requestedBookTitle = book.title,
                 offeredBookId = offered.id,
@@ -114,8 +131,44 @@ class BookDetailActivity : AppCompatActivity() {
                 date = "Just now",
                 message = "I would love to swap my book for your '${book.title}'."
             )
-            BookRepository.getExchangeRequests().add(0, req)
-            Toast.makeText(this, "Exchange request sent to ${book.sellerName}!", Toast.LENGTH_LONG).show()
+
+            binding.btnProposeExchange.isEnabled = false
+            lifecycleScope.launch {
+                try {
+                    FirestoreRepository.addExchangeRequest(req)
+                    Toast.makeText(this@BookDetailActivity, "🎉 Exchange proposal sent to ${book.sellerName}!", Toast.LENGTH_LONG).show()
+                } catch (e: Exception) {
+                    Toast.makeText(this@BookDetailActivity, "Error sending request: ${e.message}", Toast.LENGTH_SHORT).show()
+                } finally {
+                    binding.btnProposeExchange.isEnabled = true
+                }
+            }
+        }
+
+        binding.btnMarkSold.setOnClickListener {
+            lifecycleScope.launch {
+                try {
+                    FirestoreRepository.markBookAsSold(book.id)
+                    Toast.makeText(this@BookDetailActivity, "Book marked as SOLD", Toast.LENGTH_SHORT).show()
+                    binding.tvDetailConditionBadge.text = "SOLD OUT"
+                    binding.btnBuyNow.isEnabled = false
+                    binding.btnBuyNow.text = "Sold Out"
+                } catch (e: Exception) {
+                    Toast.makeText(this@BookDetailActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        binding.btnDeleteBookListing.setOnClickListener {
+            lifecycleScope.launch {
+                try {
+                    FirestoreRepository.deleteBook(book.id)
+                    Toast.makeText(this@BookDetailActivity, "🗑️ Book deleted from Firestore by Admin", Toast.LENGTH_SHORT).show()
+                    finish()
+                } catch (e: Exception) {
+                    Toast.makeText(this@BookDetailActivity, "Error deleting: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
 
         binding.btnChatSeller.setOnClickListener {
