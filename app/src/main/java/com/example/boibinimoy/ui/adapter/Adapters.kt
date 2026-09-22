@@ -51,7 +51,7 @@ class CategoryAdapter(
 
         holder.binding.tvCategoryName.text = categoryName
         val dynamicCount = BookRepository.getAllBooks().count { it.category.equals(categoryName, ignoreCase = true) }
-        val countToShow = if (dynamicCount > 0) dynamicCount else category.bookCount
+        val countToShow = dynamicCount
         if (countToShow > 0) {
             holder.binding.tvCategoryCount.visibility = View.VISIBLE
             holder.binding.tvCategoryCount.text = "$countToShow ${if (countToShow == 1) "book" else "books"}"

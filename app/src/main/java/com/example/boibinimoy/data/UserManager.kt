@@ -49,13 +49,13 @@ object UserManager {
         val firebaseUser = auth.currentUser
 
         if (firebaseUser != null || isLoggedIn) {
-            val uid = firebaseUser?.uid ?: prefs.getString(KEY_USER_ID, "user_default") ?: "user_default"
-            val name = firebaseUser?.displayName ?: prefs.getString(KEY_NAME, "Riad Hasan") ?: "Riad Hasan"
-            val email = firebaseUser?.email ?: prefs.getString(KEY_EMAIL, "riad.hasan@example.com") ?: "riad.hasan@example.com"
-            val phone = prefs.getString(KEY_PHONE, "+880 1712-345678") ?: "+880 1712-345678"
-            val location = prefs.getString(KEY_LOCATION, "Dhanmondi, Dhaka") ?: "Dhanmondi, Dhaka"
+            val uid = firebaseUser?.uid ?: prefs.getString(KEY_USER_ID, "") ?: ""
+            val name = firebaseUser?.displayName ?: prefs.getString(KEY_NAME, "") ?: ""
+            val email = firebaseUser?.email ?: prefs.getString(KEY_EMAIL, "") ?: ""
+            val phone = prefs.getString(KEY_PHONE, "") ?: ""
+            val location = prefs.getString(KEY_LOCATION, "") ?: ""
             val isAdmin = prefs.getBoolean(KEY_IS_ADMIN, false)
-            val memberSince = prefs.getString(KEY_MEMBER_SINCE, "January 2024") ?: "January 2024"
+            val memberSince = prefs.getString(KEY_MEMBER_SINCE, "") ?: ""
 
             val profile = UserProfile(
                 id = uid,
@@ -113,7 +113,7 @@ object UserManager {
                     id = uid,
                     name = name,
                     email = email,
-                    location = "Dhaka, Bangladesh",
+                    location = "",
                     isAdmin = email.contains("admin", ignoreCase = true),
                     memberSince = "Recently"
                 )
@@ -169,8 +169,8 @@ object UserManager {
                     id = uid,
                     name = name,
                     email = email,
-                    phone = phone.ifBlank { "+880 1712-000000" },
-                    location = location.ifBlank { "Dhaka, Bangladesh" },
+                    phone = phone,
+                    location = location,
                     isAdmin = email.contains("admin", ignoreCase = true),
                     memberSince = "Today",
                     isVerified = true
@@ -190,54 +190,6 @@ object UserManager {
             .addOnFailureListener { error ->
                 onResult(false, error.localizedMessage ?: "Registration failed")
             }
-    }
-
-    fun signInAsDemoUser() {
-        val profile = UserProfile(
-            id = "user_demo_regular",
-            name = "Riad Hasan",
-            email = "riad.hasan@example.com",
-            phone = "+880 1712-345678",
-            location = "Dhanmondi, Dhaka",
-            isVerified = true,
-            memberSince = "January 2024",
-            booksListed = 12,
-            booksSold = 28,
-            booksExchanged = 15,
-            isAdmin = false
-        )
-        currentUser = profile
-        saveProfileLocally(profile)
-
-        scope.launch {
-            try {
-                db.collection("users").document(profile.id).set(profile).await()
-            } catch (_: Exception) {}
-        }
-    }
-
-    fun signInAsDemoAdmin() {
-        val profile = UserProfile(
-            id = "user_demo_admin",
-            name = "Admin Riad",
-            email = "admin@boibinimoy.com",
-            phone = "+880 1800-000000",
-            location = "Dhaka Central HQ",
-            isVerified = true,
-            memberSince = "Founder",
-            booksListed = 45,
-            booksSold = 98,
-            booksExchanged = 40,
-            isAdmin = true
-        )
-        currentUser = profile
-        saveProfileLocally(profile)
-
-        scope.launch {
-            try {
-                db.collection("users").document(profile.id).set(profile).await()
-            } catch (_: Exception) {}
-        }
     }
 
     fun setAdminMode(isAdmin: Boolean, onComplete: ((Boolean) -> Unit)? = null) {

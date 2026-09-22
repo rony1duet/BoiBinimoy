@@ -159,30 +159,16 @@ class LoginActivity : AppCompatActivity() {
                         Toast.makeText(this, "Welcome back, $userName!", Toast.LENGTH_SHORT).show()
                         navigateToMain()
                     } else {
-                        Toast.makeText(this, error ?: "Sign in failed. Check credentials or use demo access.", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this, error ?: "Sign in failed. Check your credentials.", Toast.LENGTH_LONG).show()
                     }
                 }
             }
-        }
-
-        binding.btnDemoUser.setOnClickListener {
-            UserManager.signInAsDemoUser()
-            Toast.makeText(this, "Logged in as Demo User: Riad Hasan", Toast.LENGTH_SHORT).show()
-            navigateToMain()
-        }
-
-        binding.btnDemoAdmin.setOnClickListener {
-            UserManager.signInAsDemoAdmin()
-            Toast.makeText(this, "Logged in as Admin: Admin Riad (Full Privileges)", Toast.LENGTH_SHORT).show()
-            navigateToMain()
         }
     }
 
     private fun setLoading(isLoading: Boolean) {
         binding.pbAuthLoading.visibility = if (isLoading) View.VISIBLE else View.GONE
         binding.btnAuthSubmit.isEnabled = !isLoading
-        binding.btnDemoUser.isEnabled = !isLoading
-        binding.btnDemoAdmin.isEnabled = !isLoading
     }
 
     private fun navigateToMain() {

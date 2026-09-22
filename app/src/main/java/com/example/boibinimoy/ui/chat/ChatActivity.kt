@@ -20,10 +20,11 @@ class ChatActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityChatBinding
     private lateinit var chatAdapter: ChatAdapter
-    private val chatId = "demo_chat"
+    private var chatId: String = "chat_general"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        chatId = intent.getStringExtra("extra_chat_id") ?: "chat_general"
         enableEdgeToEdge()
         binding = ActivityChatBinding.inflate(layoutInflater)
         setContentView(binding.root)

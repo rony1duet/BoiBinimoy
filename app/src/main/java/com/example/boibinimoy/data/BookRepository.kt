@@ -166,12 +166,13 @@ object BookRepository {
     fun getChatMessages(): MutableList<ChatMessage> = chatMessages
 
     fun sendChatMessage(text: String) {
+        val current = UserManager.currentUser
         chatMessages.add(
             ChatMessage(
                 id = "c_${System.currentTimeMillis()}",
-                chatId = "demo_chat",
-                senderName = "Riad Hasan",
-                senderId = "me",
+                chatId = current?.id ?: "chat_general",
+                senderName = current?.name ?: "User",
+                senderId = current?.id ?: "me",
                 message = text,
                 timestamp = System.currentTimeMillis(),
                 isMe = true

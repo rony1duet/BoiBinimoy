@@ -91,7 +91,8 @@
                                 android:id="@+id/tvProfileName"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Riad Hasan"
+                                android:text=""
+                                tools:text="User"
                                 android:textColor="@color/text_primary"
                                 android:textSize="17sp"
                                 android:textStyle="bold" />
@@ -154,7 +155,7 @@
                             android:id="@+id/tvStatListed"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="12"
+                            android:text="0"
                             android:textColor="@color/primary_green"
                             android:textSize="16sp"
                             android:textStyle="bold" />
@@ -185,7 +186,7 @@
                             android:id="@+id/tvStatSold"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="28"
+                            android:text="0"
                             android:textColor="@color/primary_green"
                             android:textSize="16sp"
                             android:textStyle="bold" />
@@ -216,7 +217,7 @@
                             android:id="@+id/tvStatSwapped"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="15"
+                            android:text="0"
                             android:textColor="@color/primary_green"
                             android:textSize="16sp"
                             android:textStyle="bold" />

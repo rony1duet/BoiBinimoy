@@ -140,8 +140,8 @@ class CartFragment : Fragment() {
                         totalAmount = total,
                         orderDate = "Just now",
                         status = "CONFIRMED",
-                        userName = user?.name ?: "Riad Hasan",
-                        deliveryAddress = user?.location ?: "Dhanmondi, Dhaka"
+                        userName = user?.name?.ifBlank { "User" } ?: "User",
+                        deliveryAddress = user?.location?.ifBlank { "Not provided" } ?: "Not provided"
                     )
                     FirestoreRepository.addOrder(order)
                     cartItems.clear()
@@ -286,8 +286,8 @@ class CartFragment : Fragment() {
                         author = author,
                         category = category,
                         maxPrice = budget,
-                        requesterName = user?.name ?: "Riad Hasan",
-                        requesterLocation = user?.location ?: "Dhanmondi, Dhaka",
+                        requesterName = user?.name?.ifBlank { "Reader" } ?: "Reader",
+                        requesterLocation = user?.location?.ifBlank { "Not specified" } ?: "Not specified",
                         note = note,
                         timestamp = "Just now",
                         status = "OPEN"

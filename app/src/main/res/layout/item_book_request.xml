@@ -74,7 +74,7 @@
                 android:layout_weight="1"
                 android:textColor="@color/text_muted"
                 android:textSize="11sp"
-                tools:text="Riad Hasan • Dhanmondi, Dhaka" />
+                tools:text="User • Dhaka" />
 
             <TextView
                 android:id="@+id/tvRequestPrice"

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="200dp"
     android:background="@drawable/bg_hero_card"
@@ -42,7 +43,8 @@
             android:id="@+id/tvDrawerUserName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Riad Hasan"
+            android:text=""
+            tools:text="User"
             android:textColor="@color/white"
             android:textSize="16sp"
             android:textStyle="bold" />
@@ -71,7 +73,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
-        android:text="riad.hasan@example.com"
+        android:text=""
+        tools:text="user@example.com"
         android:textColor="#D1F2D9"
         android:textSize="12sp" />
 

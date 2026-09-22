@@ -153,8 +153,8 @@ class BookDetailActivity : AppCompatActivity() {
                 requestedBookTitle = book.title,
                 offeredBookId = offered.id,
                 offeredBookTitle = offered.title,
-                userName = user?.name ?: "Riad Hasan",
-                userLocation = user?.location ?: "Dhanmondi, Dhaka",
+                userName = user?.name?.ifBlank { "Reader" } ?: "Reader",
+                userLocation = user?.location?.ifBlank { "Not specified" } ?: "Not specified",
                 status = "PENDING",
                 date = "Just now",
                 message = "I would love to swap my '${offered.title}' for your '${book.title}'."

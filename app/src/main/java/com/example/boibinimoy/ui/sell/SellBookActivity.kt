@@ -223,8 +223,8 @@ class SellBookActivity : AppCompatActivity() {
             val notes = binding.etSellDescription.text.toString().trim()
 
             val currentUser = UserManager.currentUser
-            val sellerName = currentUser?.name ?: "Riad Hasan"
-            val sellerId = currentUser?.id ?: "user_default"
+            val sellerName = currentUser?.name?.ifBlank { "Seller" } ?: "Seller"
+            val sellerId = currentUser?.id ?: ""
             val bookId = "book_${System.currentTimeMillis()}"
 
             val desc = if (notes.isNotEmpty()) notes else "Listed by $sellerName on BoiBinimoy. In $condition condition, well-preserved."

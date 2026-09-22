@@ -63,11 +63,11 @@ data class BookRequest(
     val bookTitle: String = "",
     val author: String = "",
     val category: String = "General",
-    val maxPrice: Int = 250,
-    val requesterName: String = "Riad Hasan",
-    val requesterLocation: String = "Dhanmondi, Dhaka",
+    val maxPrice: Int = 0,
+    val requesterName: String = "",
+    val requesterLocation: String = "",
     val note: String = "",
-    val timestamp: String = "Just now",
+    val timestamp: String = "",
     val status: String = "OPEN"       // OPEN, FULFILLED, CLOSED
 ) : Serializable
 
@@ -77,8 +77,8 @@ data class OrderItem(
     val totalAmount: Int = 0,
     val orderDate: String = "",
     val status: String = "CONFIRMED",
-    val userName: String = "Riad Hasan",
-    val deliveryAddress: String = "Dhanmondi, Dhaka"
+    val userName: String = "",
+    val deliveryAddress: String = ""
 ) : Serializable
 
 data class CartItem(
@@ -111,18 +111,18 @@ enum class NotificationType {
 }
 
 data class UserProfile(
-    val id: String = "user_default",
-    val name: String = "Riad Hasan",
-    val email: String = "riad.hasan@example.com",
-    val phone: String = "+880 1712-345678",
-    val location: String = "Dhanmondi, Dhaka",
-    val isVerified: Boolean = true,
-    val memberSince: String = "January 2024",
-    val rating: Double = 4.9,
-    val reviewsCount: Int = 38,
-    val booksListed: Int = 12,
-    val booksSold: Int = 28,
-    val booksExchanged: Int = 15,
-    val totalSavingsTaka: Int = 3450,
+    val id: String = "",
+    val name: String = "",
+    val email: String = "",
+    val phone: String = "",
+    val location: String = "",
+    val isVerified: Boolean = false,
+    val memberSince: String = "",
+    val rating: Double = 0.0,
+    val reviewsCount: Int = 0,
+    val booksListed: Int = 0,
+    val booksSold: Int = 0,
+    val booksExchanged: Int = 0,
+    val totalSavingsTaka: Int = 0,
     val isAdmin: Boolean = false
 ) : Serializable
