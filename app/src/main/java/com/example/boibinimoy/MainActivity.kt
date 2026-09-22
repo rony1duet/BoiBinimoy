@@ -2,11 +2,15 @@ package com.example.boibinimoy
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import com.example.boibinimoy.databinding.ActivityMainBinding
 import com.example.boibinimoy.ui.cart.CartFragment
@@ -32,13 +36,45 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setupWindowInsets()
         setupFragments()
         setupBottomNavigation()
         setupDrawerNavigation()
         handleIntent(intent)
+    }
+
+    private fun setupWindowInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.mainCoordinator) { _, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val navBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+
+            val density = resources.displayMetrics.density
+            val baseNavHeightPx = (65 * density).toInt()
+
+            // Padding bottom for bottomNavContainer so tab icons sit ABOVE the gesture bar
+            binding.bottomNavContainer.setPadding(
+                binding.bottomNavContainer.paddingLeft,
+                (4 * density).toInt(),
+                binding.bottomNavContainer.paddingRight,
+                navBars.bottom + (4 * density).toInt()
+            )
+
+            val navParams = binding.bottomNavContainer.layoutParams
+            navParams.height = baseNavHeightPx + navBars.bottom
+            binding.bottomNavContainer.layoutParams = navParams
+
+            // Set fragment container margin so fragment scrollable content is not obscured
+            val fragmentParams = binding.fragmentContainer.layoutParams as ViewGroup.MarginLayoutParams
+            fragmentParams.bottomMargin = navParams.height
+            fragmentParams.topMargin = systemBars.top
+            binding.fragmentContainer.layoutParams = fragmentParams
+
+            insets
+        }
     }
 
     override fun onNewIntent(intent: Intent) {

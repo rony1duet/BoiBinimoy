@@ -3,7 +3,10 @@ package com.example.boibinimoy.ui.sell
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.boibinimoy.R
 import com.example.boibinimoy.data.FirestoreRepository
@@ -17,11 +20,31 @@ class SellBookActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         binding = ActivitySellBookBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setupWindowInsets()
         setupSpinners()
         setupListeners()
+    }
+
+    private fun setupWindowInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val navBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+            binding.root.setPadding(0, systemBars.top, 0, 0)
+
+            val bottomBar = binding.root.getChildAt(binding.root.childCount - 1)
+            bottomBar?.setPadding(
+                bottomBar.paddingLeft,
+                bottomBar.paddingTop,
+                bottomBar.paddingRight,
+                navBars.bottom + 12
+            )
+            insets
+        }
     }
 
     private fun setupSpinners() {

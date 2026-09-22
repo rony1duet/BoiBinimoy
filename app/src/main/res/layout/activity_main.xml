@@ -5,7 +5,6 @@
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
     <!-- Main Content Frame -->
@@ -13,7 +12,6 @@
         android:id="@+id/mainCoordinator"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fitsSystemWindows="true"
         android:background="@color/background_light"
         android:clipChildren="false"
         android:clipToPadding="false">
@@ -23,13 +21,14 @@
             android:id="@+id/fragmentContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="64dp" />
+            android:layout_marginBottom="65dp" />
 
         <!-- Bottom Navigation Bar Container -->
         <LinearLayout
             android:id="@+id/bottomNavContainer"
             android:layout_width="match_parent"
-            android:layout_height="65dp"
+            android:layout_height="wrap_content"
+            android:minHeight="65dp"
             android:layout_gravity="bottom"
             android:background="@drawable/bg_bottom_nav"
             android:elevation="12dp"
@@ -37,13 +36,14 @@
             android:baselineAligned="false"
             android:clipChildren="false"
             android:clipToPadding="false"
-            android:paddingBottom="5dp">
+            android:paddingTop="4dp"
+            android:paddingBottom="6dp">
 
             <!-- Home Tab -->
             <LinearLayout
                 android:id="@+id/navTabHome"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="55dp"
                 android:layout_weight="1"
                 android:gravity="center"
                 android:orientation="vertical"
@@ -74,7 +74,7 @@
             <LinearLayout
                 android:id="@+id/navTabSearch"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="55dp"
                 android:layout_weight="1"
                 android:gravity="center"
                 android:orientation="vertical"
@@ -104,7 +104,7 @@
             <LinearLayout
                 android:id="@+id/navTabSell"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="55dp"
                 android:layout_weight="1.2"
                 android:gravity="center"
                 android:orientation="vertical"
@@ -144,7 +144,7 @@
             <LinearLayout
                 android:id="@+id/navTabCart"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="55dp"
                 android:layout_weight="1"
                 android:gravity="center"
                 android:orientation="vertical"
@@ -174,7 +174,7 @@
             <LinearLayout
                 android:id="@+id/navTabProfile"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="55dp"
                 android:layout_weight="1"
                 android:gravity="center"
                 android:orientation="vertical"
@@ -201,8 +201,6 @@
             </LinearLayout>
 
         </LinearLayout>
-
-
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
