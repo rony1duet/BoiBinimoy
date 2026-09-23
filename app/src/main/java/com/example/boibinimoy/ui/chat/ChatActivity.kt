@@ -29,6 +29,9 @@ class ChatActivity : AppCompatActivity() {
         binding = ActivityChatBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val recipientName = intent.getStringExtra("extra_recipient_name") ?: "Seller"
+        binding.tvChatRecipient.text = recipientName
+
         setupWindowInsets()
         setupChatRecycler()
         observeMessages()
@@ -86,15 +89,20 @@ class ChatActivity : AppCompatActivity() {
     private fun setupListeners() {
         binding.btnChatBack.setOnClickListener { finish() }
 
+        val recipientPhone = intent.getStringExtra("extra_recipient_phone") ?: ""
+
         binding.btnChatCall.setOnClickListener {
-            try {
-                val dialIntent = android.content.Intent(android.content.Intent.ACTION_DIAL).apply {
-                    data = android.net.Uri.parse("tel:+8801712345678")
+            if (recipientPhone.isNotBlank()) {
+                try {
+                    val dialIntent = android.content.Intent(android.content.Intent.ACTION_DIAL).apply {
+                        data = android.net.Uri.parse("tel:$recipientPhone")
+                    }
+                    startActivity(dialIntent)
+                } catch (_: Exception) {
+                    Toast.makeText(this, "Calling $recipientPhone...", Toast.LENGTH_SHORT).show()
                 }
-                startActivity(dialIntent)
-            } catch (e: Exception) {
-                val recipient = binding.tvChatRecipient.text.toString().ifBlank { "seller" }
-                Toast.makeText(this, "Calling $recipient...", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "No phone number available. Please message via chat!", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -116,27 +124,32 @@ class ChatActivity : AppCompatActivity() {
             val text = binding.etChatMessage.text.toString().trim()
             if (text.isNotEmpty()) {
                 binding.etChatMessage.text.clear()
-                BookRepository.sendChatMessage(text)
-                chatAdapter.updateMessages(BookRepository.getChatMessages())
-                binding.rvChatMessages.scrollToPosition(BookRepository.getChatMessages().size - 1)
 
                 val user = com.example.boibinimoy.data.UserManager.currentUser
-                val senderName = user?.name ?: "You"
-                val senderId = user?.id ?: "me"
+                val senderName = user?.name?.ifBlank { "You" } ?: "You"
+                val senderId = user?.id?.ifBlank { "me" } ?: "me"
+
+                val localMsg = ChatMessage(
+                    id = "c_${System.currentTimeMillis()}",
+                    chatId = chatId,
+                    senderName = senderName,
+                    senderId = senderId,
+                    message = text,
+                    timestamp = System.currentTimeMillis(),
+                    isMe = true
+                )
+
+                BookRepository.getChatMessages().add(localMsg)
+                chatAdapter.updateMessages(BookRepository.getChatMessages())
+                binding.rvChatMessages.scrollToPosition(BookRepository.getChatMessages().size - 1)
 
                 lifecycleScope.launch {
                     try {
                         FirestoreRepository.sendMessage(
                             chatId,
-                            ChatMessage(
-                                chatId = chatId,
-                                senderName = senderName,
-                                senderId = senderId,
-                                message = text,
-                                isMe = true
-                            )
+                            localMsg.copy(isMe = false)
                         )
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         // Local message already saved and rendered in chat UI
                     }
                 }

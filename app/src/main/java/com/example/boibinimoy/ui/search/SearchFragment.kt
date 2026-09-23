@@ -91,8 +91,9 @@ class SearchFragment : Fragment() {
                 }
                 startActivity(intent)
             },
-            onFavoriteClick = { book, _ ->
+            onFavoriteClick = { book, position ->
                 val isFav = BookRepository.toggleFavorite(book.id)
+                bookGridAdapter.notifyItemChanged(position)
                 val msg = if (isFav) "Added ${book.title} to wishlist!" else "Removed from wishlist"
                 Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
             }

@@ -4,6 +4,7 @@ import com.example.boibinimoy.R
 import com.example.boibinimoy.model.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -274,18 +275,22 @@ object FirestoreRepository {
         val listener = usersRef.document(userId)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) { close(error); return@addSnapshotListener }
-                val profile = snapshot?.toObject(UserProfile::class.java) ?: UserProfile(id = userId)
+                val profile = snapshot?.let { UserManager.documentToUserProfile(it) } ?: UserProfile(id = userId)
                 trySend(profile)
             }
         awaitClose { listener.remove() }
     }
 
     suspend fun updateUserProfile(profile: UserProfile) {
-        usersRef.document(profile.id).set(profile).await()
+        val map = UserManager.userProfileToMap(profile)
+        usersRef.document(profile.id).set(map, SetOptions.merge()).await()
     }
 
     suspend fun toggleAdminRole(userId: String = "user_default", isAdmin: Boolean) {
-        usersRef.document(userId).update("isAdmin", isAdmin).await()
+        usersRef.document(userId).set(
+            mapOf("isAdmin" to isAdmin, "admin" to isAdmin),
+            SetOptions.merge()
+        ).await()
     }
 
 }

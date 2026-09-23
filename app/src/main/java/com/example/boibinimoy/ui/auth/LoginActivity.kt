@@ -28,6 +28,7 @@ class LoginActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setupWindowInsets()
+        setupFieldFocusScroll()
         setupModeSwitch()
         setupListeners()
         setupBackPressHandler()
@@ -52,15 +53,60 @@ class LoginActivity : AppCompatActivity() {
         })
     }
 
+    private fun setupFieldFocusScroll() {
+        val density = resources.displayMetrics.density
+        val fields = listOf(
+            binding.etName to binding.tilName,
+            binding.etLocation to binding.tilLocation,
+            binding.etPhone to binding.tilPhone,
+            binding.etEmail to binding.tilEmail,
+            binding.etPassword to binding.tilPassword
+        )
+
+        for ((et, til) in fields) {
+            et.setOnFocusChangeListener { _, hasFocus ->
+                if (hasFocus) {
+                    binding.scrollLoginRoot.postDelayed({
+                        val targetY = (til.top - (16 * density).toInt()).coerceAtLeast(0)
+                        binding.scrollLoginRoot.smoothScrollTo(0, targetY)
+                    }, 150)
+                }
+            }
+        }
+    }
+
     private fun setupWindowInsets() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(binding.scrollLoginRoot) { _, insets ->
+            val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            binding.layoutLoginRoot.setPadding(
-                binding.layoutLoginRoot.paddingLeft,
-                systemBars.top + 24,
-                binding.layoutLoginRoot.paddingRight,
-                systemBars.bottom + 24
-            )
+            val density = resources.displayMetrics.density
+            val sidePadding = (24 * density).toInt()
+            val topPadding = systemBars.top + (24 * density).toInt()
+
+            val isImeVisible = imeInsets.bottom > 0
+            val bottomPadding = if (isImeVisible) {
+                imeInsets.bottom + (32 * density).toInt()
+            } else {
+                systemBars.bottom + (48 * density).toInt()
+            }
+
+            binding.layoutLoginRoot.setPadding(sidePadding, topPadding, sidePadding, bottomPadding)
+
+            if (isImeVisible) {
+                currentFocus?.let { focusedView ->
+                    binding.scrollLoginRoot.postDelayed({
+                        val location = IntArray(2)
+                        focusedView.getLocationInWindow(location)
+                        val screenHeight = resources.displayMetrics.heightPixels
+                        val keyboardTop = screenHeight - imeInsets.bottom
+                        if (location[1] + focusedView.height > keyboardTop) {
+                            val diff = (location[1] + focusedView.height) - keyboardTop + (24 * density).toInt()
+                            binding.scrollLoginRoot.smoothScrollBy(0, diff)
+                        }
+                    }, 100)
+                }
+            }
+
             insets
         }
     }
@@ -70,6 +116,7 @@ class LoginActivity : AppCompatActivity() {
             if (isSignUpMode) {
                 isSignUpMode = false
                 updateModeUi()
+                binding.scrollLoginRoot.smoothScrollTo(0, 0)
             }
         }
 
@@ -77,6 +124,7 @@ class LoginActivity : AppCompatActivity() {
             if (!isSignUpMode) {
                 isSignUpMode = true
                 updateModeUi()
+                binding.scrollLoginRoot.smoothScrollTo(0, 0)
             }
         }
     }
@@ -121,6 +169,11 @@ class LoginActivity : AppCompatActivity() {
 
             if (email.isEmpty() || pass.isEmpty()) {
                 Toast.makeText(this, "Please enter email and password", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 

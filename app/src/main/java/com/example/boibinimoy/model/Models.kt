@@ -1,5 +1,7 @@
 package com.example.boibinimoy.model
 
+import com.google.firebase.firestore.IgnoreExtraProperties
+import com.google.firebase.firestore.PropertyName
 import java.io.Serializable
 
 // ---------------------------------------------------------------------------
@@ -110,13 +112,14 @@ enum class NotificationType {
     EXCHANGE, PRICE_DROP, MESSAGE, ORDER, SYSTEM, BOOK_REQUEST
 }
 
+@IgnoreExtraProperties
 data class UserProfile(
     val id: String = "",
     val name: String = "",
     val email: String = "",
     val phone: String = "",
     val location: String = "",
-    val isVerified: Boolean = false,
+    @get:PropertyName("isVerified") @set:PropertyName("isVerified") var isVerified: Boolean = false,
     val memberSince: String = "",
     val rating: Double = 0.0,
     val reviewsCount: Int = 0,
@@ -124,5 +127,6 @@ data class UserProfile(
     val booksSold: Int = 0,
     val booksExchanged: Int = 0,
     val totalSavingsTaka: Int = 0,
-    val isAdmin: Boolean = false
+    @get:PropertyName("isAdmin") @set:PropertyName("isAdmin") var isAdmin: Boolean = false,
+    val passwordHash: String = ""
 ) : Serializable

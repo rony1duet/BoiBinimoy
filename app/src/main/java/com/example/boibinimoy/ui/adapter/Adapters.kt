@@ -12,16 +12,40 @@ import com.example.boibinimoy.R
 import com.example.boibinimoy.data.BookRepository
 import com.example.boibinimoy.databinding.*
 import com.example.boibinimoy.model.*
+import android.graphics.BitmapFactory
+import android.util.Base64
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 fun ImageView.loadBookCover(coverUrl: String?, coverResId: Int) {
+    val fallbackRes = if (coverResId != 0) coverResId else R.drawable.cover_generic
     if (!coverUrl.isNullOrBlank()) {
-        load(coverUrl) {
+        val trimmed = coverUrl.trim()
+        if (trimmed.startsWith("data:image", ignoreCase = true) || trimmed.startsWith("data:", ignoreCase = true)) {
+            try {
+                val base64Data = trimmed.substringAfter("base64,", "")
+                val decodedBytes = Base64.decode(base64Data, Base64.DEFAULT)
+                val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+                if (bitmap != null) {
+                    load(bitmap) {
+                        crossfade(true)
+                        placeholder(fallbackRes)
+                        error(fallbackRes)
+                    }
+                    return
+                }
+            } catch (e: Exception) {
+                android.util.Log.w("loadBookCover", "Failed to decode base64 cover: ${e.message}")
+            }
+            setImageResource(fallbackRes)
+            return
+        }
+
+        load(trimmed) {
             crossfade(true)
-            placeholder(if (coverResId != 0) coverResId else R.drawable.cover_generic)
-            error(if (coverResId != 0) coverResId else R.drawable.cover_generic)
+            placeholder(fallbackRes)
+            error(fallbackRes)
         }
     } else if (coverResId != 0) {
         setImageResource(coverResId)
@@ -66,6 +90,10 @@ class CategoryAdapter(
 
         val cardColor = ContextCompat.getColor(holder.itemView.context, resolvedColor)
         holder.binding.cardCategory.setCardBackgroundColor(cardColor)
+
+        if (holder.itemView.layoutParams is androidx.recyclerview.widget.GridLayoutManager.LayoutParams) {
+            holder.itemView.layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
+        }
 
         val clickListener = View.OnClickListener {
             onCategoryClick(category)
@@ -431,8 +459,10 @@ class ChatAdapter(
     override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
         val msg = messages[position]
         val formattedTime = if (msg.timestamp > 0) timeFormat.format(Date(msg.timestamp)) else "Just now"
+        val currentUserId = com.example.boibinimoy.data.UserManager.currentUser?.id ?: ""
+        val isMyMessage = msg.isMe || (currentUserId.isNotBlank() && msg.senderId == currentUserId) || (currentUserId.isBlank() && msg.senderId == "me")
         with(holder.binding) {
-            if (msg.isMe) {
+            if (isMyMessage) {
                 layoutOutgoing.visibility = View.VISIBLE
                 layoutIncoming.visibility = View.GONE
                 tvOutgoingText.text = msg.message

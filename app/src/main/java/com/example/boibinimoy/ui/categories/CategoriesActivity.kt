@@ -49,19 +49,20 @@ class CategoriesActivity : AppCompatActivity() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             val navBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            val density = resources.displayMetrics.density
 
             binding.layoutCatHeader.setPadding(
                 binding.layoutCatHeader.paddingLeft,
-                systemBars.top + 8,
+                systemBars.top + (8 * density).toInt(),
                 binding.layoutCatHeader.paddingRight,
-                8
+                (8 * density).toInt()
             )
 
             binding.rvAllCategories.setPadding(
                 binding.rvAllCategories.paddingLeft,
                 binding.rvAllCategories.paddingTop,
                 binding.rvAllCategories.paddingRight,
-                navBars.bottom + 24
+                navBars.bottom + (24 * density).toInt()
             )
             insets
         }

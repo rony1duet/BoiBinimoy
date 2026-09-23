@@ -3,7 +3,10 @@ package com.example.boibinimoy.ui.notifications
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.boibinimoy.data.BookRepository
@@ -22,8 +25,30 @@ class NotificationsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         binding = ActivityNotificationsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        val density = resources.displayMetrics.density
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val navBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+
+            binding.layoutNotifHeader.setPadding(
+                binding.layoutNotifHeader.paddingLeft,
+                systemBars.top + (8 * density).toInt(),
+                binding.layoutNotifHeader.paddingRight,
+                (8 * density).toInt()
+            )
+
+            binding.rvNotifications.setPadding(
+                binding.rvNotifications.paddingLeft,
+                binding.rvNotifications.paddingTop,
+                binding.rvNotifications.paddingRight,
+                navBars.bottom + (16 * density).toInt()
+            )
+            insets
+        }
 
         binding.btnNotifBack.setOnClickListener {
             finish()
@@ -63,10 +88,8 @@ class NotificationsActivity : AppCompatActivity() {
             FirestoreRepository.getNotifications()
                 .catch { }
                 .collect { notifications ->
-                    if (notifications.isNotEmpty()) {
-                        adapter.updateData(notifications)
-                    }
-                    updateEmptyState(notifications.size.coerceAtLeast(BookRepository.getNotifications().size))
+                    adapter.updateData(notifications)
+                    updateEmptyState(notifications.size)
                 }
         }
     }

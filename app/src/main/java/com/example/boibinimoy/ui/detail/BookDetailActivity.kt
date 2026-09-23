@@ -23,6 +23,7 @@ import com.example.boibinimoy.ui.adapter.loadBookCover
 import com.example.boibinimoy.ui.chat.ChatActivity
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class BookDetailActivity : AppCompatActivity() {
 
@@ -212,16 +213,33 @@ class BookDetailActivity : AppCompatActivity() {
         }
 
         binding.btnChatSeller.setOnClickListener {
-            startActivity(Intent(this, ChatActivity::class.java))
+            val chatIntent = Intent(this, ChatActivity::class.java).apply {
+                putExtra("extra_chat_id", "chat_${book.id}")
+                putExtra("extra_recipient_name", book.sellerName.ifBlank { "Seller" })
+            }
+            startActivity(chatIntent)
         }
 
         binding.btnCallSeller.setOnClickListener {
-            val phone = "01712345678"
-            try {
-                val dialIntent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phone"))
-                startActivity(dialIntent)
-            } catch (_: Exception) {
-                Toast.makeText(this, "Calling seller ($phone)...", Toast.LENGTH_SHORT).show()
+            lifecycleScope.launch {
+                var phone = ""
+                if (book.sellerId.isNotBlank()) {
+                    try {
+                        val doc = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                            .collection("users").document(book.sellerId).get().await()
+                        phone = doc.getString("phone") ?: ""
+                    } catch (_: Exception) {}
+                }
+                if (phone.isNotBlank()) {
+                    try {
+                        val dialIntent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phone"))
+                        startActivity(dialIntent)
+                    } catch (_: Exception) {
+                        Toast.makeText(this@BookDetailActivity, "Calling seller ($phone)...", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(this@BookDetailActivity, "Seller has not provided a phone number. Please use Chat!", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }

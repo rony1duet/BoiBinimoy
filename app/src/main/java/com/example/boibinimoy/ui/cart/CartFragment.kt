@@ -226,10 +226,8 @@ class CartFragment : Fragment() {
             FirestoreRepository.getExchangeRequests()
                 .catch { }
                 .collect { firestoreRequests ->
-                    if (firestoreRequests.isNotEmpty()) {
-                        exchangeAdapter.updateData(firestoreRequests)
-                    }
-                    updateSwapsVisibility(firestoreRequests.size.coerceAtLeast(BookRepository.getExchangeRequests().size))
+                    exchangeAdapter.updateData(firestoreRequests)
+                    updateSwapsVisibility(firestoreRequests.size)
                 }
         }
 

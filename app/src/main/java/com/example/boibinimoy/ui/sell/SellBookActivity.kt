@@ -27,9 +27,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import android.graphics.BitmapFactory
+import android.util.Base64
 import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.FileOutputStream
 import java.util.UUID
 
 class SellBookActivity : AppCompatActivity() {
@@ -160,32 +160,73 @@ class SellBookActivity : AppCompatActivity() {
         }
     }
 
+    private fun scaleBitmap(bitmap: Bitmap, maxDim: Int = 600): Bitmap {
+        val width = bitmap.width
+        val height = bitmap.height
+        if (width <= maxDim && height <= maxDim) return bitmap
+
+        val ratio = width.toFloat() / height.toFloat()
+        val newWidth: Int
+        val newHeight: Int
+        if (width > height) {
+            newWidth = maxDim
+            newHeight = (maxDim / ratio).toInt().coerceAtLeast(1)
+        } else {
+            newHeight = maxDim
+            newWidth = (maxDim * ratio).toInt().coerceAtLeast(1)
+        }
+        return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
+    }
+
     private suspend fun uploadCoverImage(uri: Uri): String = withContext(Dispatchers.IO) {
         try {
-            val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                ImageDecoder.decodeBitmap(ImageDecoder.createSource(contentResolver, uri))
-            } else {
-                @Suppress("DEPRECATION")
-                MediaStore.Images.Media.getBitmap(contentResolver, uri)
+            val originalBitmap: Bitmap? = try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    ImageDecoder.decodeBitmap(ImageDecoder.createSource(contentResolver, uri)) { decoder, _, _ ->
+                        decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
+                    }
+                } else {
+                    @Suppress("DEPRECATION")
+                    MediaStore.Images.Media.getBitmap(contentResolver, uri)
+                }
+            } catch (_: Exception) {
+                contentResolver.openInputStream(uri)?.use { stream ->
+                    BitmapFactory.decodeStream(stream)
+                }
             }
+
+            if (originalBitmap == null) {
+                return@withContext ""
+            }
+
+            val scaled = scaleBitmap(originalBitmap, maxDim = 600)
             val baos = ByteArrayOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos)
+            scaled.compress(Bitmap.CompressFormat.JPEG, 75, baos)
             val imageBytes = baos.toByteArray()
 
+            // 1. Try Firebase Storage first (cloud storage upload)
             try {
                 val fileName = "covers/${UUID.randomUUID()}.jpg"
                 val storageRef = FirebaseStorage.getInstance().reference.child(fileName)
                 storageRef.putBytes(imageBytes).await()
                 val downloadUrl = storageRef.downloadUrl.await().toString()
-                return@withContext downloadUrl
+                if (downloadUrl.startsWith("http://") || downloadUrl.startsWith("https://")) {
+                    return@withContext downloadUrl
+                }
             } catch (storageError: Exception) {
-                // Fallback: save to internal app storage if Firebase Storage write rule or network is unavailable
-                val localFile = File(filesDir, "cover_${System.currentTimeMillis()}.jpg")
-                FileOutputStream(localFile).use { it.write(imageBytes) }
-                return@withContext Uri.fromFile(localFile).toString()
+                android.util.Log.w(
+                    "SellBookActivity",
+                    "Firebase Storage unavailable (${storageError.message}), storing cover directly in database document."
+                )
             }
+
+            // 2. Direct Database Storage: Base64 data URL saved directly into the Firestore database document
+            // Scaled to 600px, 75% quality JPEG is only ~25-35KB, well within Firestore's 1MB document limit.
+            val base64Data = Base64.encodeToString(imageBytes, Base64.NO_WRAP)
+            return@withContext "data:image/jpeg;base64,$base64Data"
         } catch (e: Exception) {
-            return@withContext uri.toString()
+            android.util.Log.e("SellBookActivity", "Failed to process cover image: ${e.message}")
+            return@withContext ""
         }
     }
 
@@ -214,7 +255,13 @@ class SellBookActivity : AppCompatActivity() {
             val isFree = binding.chipSellFree.isChecked
             val isExchange = binding.chipSellExchange.isChecked
 
-            val price = if (isFree) 0 else (binding.etSellPrice.text.toString().toIntOrNull() ?: 0)
+            val priceText = binding.etSellPrice.text.toString().trim()
+            val price = if (isFree) 0 else (priceText.toIntOrNull() ?: 0)
+            if (!isFree && price <= 0) {
+                binding.etSellPrice.error = "Please enter a valid price"
+                binding.etSellPrice.requestFocus()
+                return@setOnClickListener
+            }
             val originalPrice = if (isFree) 0 else (binding.etSellOriginalPrice.text.toString().toIntOrNull() ?: price)
 
             val category = binding.spinnerSellCategory.selectedItem.toString()
@@ -233,8 +280,9 @@ class SellBookActivity : AppCompatActivity() {
             binding.btnSubmitBook.text = "Publishing…"
 
             lifecycleScope.launch {
-                val uploadedCoverUrl = if (selectedImageUri != null) {
-                    uploadCoverImage(selectedImageUri!!)
+                val imgUri = selectedImageUri
+                val uploadedCoverUrl = if (imgUri != null) {
+                    uploadCoverImage(imgUri)
                 } else {
                     ""
                 }
@@ -265,6 +313,7 @@ class SellBookActivity : AppCompatActivity() {
 
                 // Add locally immediately so it's instantly discoverable in search & home
                 BookRepository.addBook(newBook)
+                UserManager.incrementUserBooksListed()
 
                 try {
                     FirestoreRepository.addBook(newBook)

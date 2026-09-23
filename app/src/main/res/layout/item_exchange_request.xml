@@ -32,7 +32,7 @@
                     android:id="@+id/tvExchangeUser"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Kazi Shakil"
+                    tools:text="User"
                     android:textColor="@color/text_primary"
                     android:textSize="14sp"
                     android:textStyle="bold" />

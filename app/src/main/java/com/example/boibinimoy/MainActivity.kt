@@ -75,8 +75,8 @@ class MainActivity : AppCompatActivity() {
             UserManager.currentUserFlow.collect { profile ->
                 val user = profile ?: UserManager.currentUser
                 if (user != null) {
-                    tvName?.text = user.name
-                    tvEmail?.text = user.email
+                    tvName?.text = user.name.ifBlank { "Reader" }
+                    tvEmail?.text = user.email.ifBlank { "reader@boibinimoy.com" }
                     tvAdminBadge?.visibility = if (user.isAdmin) android.view.View.VISIBLE else android.view.View.GONE
                 }
             }

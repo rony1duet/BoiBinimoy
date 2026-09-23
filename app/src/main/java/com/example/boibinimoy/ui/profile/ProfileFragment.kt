@@ -28,7 +28,6 @@ class ProfileFragment : Fragment() {
 
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
-    private var isAdminMode = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,37 +45,27 @@ class ProfileFragment : Fragment() {
         setupListeners()
     }
 
+    override fun onResume() {
+        super.onResume()
+        UserManager.refreshCurrentUser()
+    }
+
     private fun observeUserProfile() {
         viewLifecycleOwner.lifecycleScope.launch {
             UserManager.currentUserFlow.collectLatest { profile ->
                 val user = profile ?: UserManager.currentUser
                 if (user != null) {
-                    isAdminMode = user.isAdmin
-                    binding.tvProfileName.text = user.name
-                    binding.tvProfileMeta.text = "${user.location} • ${user.email}"
+                    binding.tvProfileName.text = user.name.ifBlank { "Reader" }
+                    val locationText = user.location.ifBlank { "Dhaka, Bangladesh" }
+                    val emailText = user.email.ifBlank { "reader@boibinimoy.com" }
+                    binding.tvProfileMeta.text = "$locationText • $emailText"
                     binding.tvStatListed.text = user.booksListed.toString()
                     binding.tvStatSold.text = user.booksSold.toString()
                     binding.tvStatSwapped.text = user.booksExchanged.toString()
 
-                    binding.switchAdminMode.setOnCheckedChangeListener(null)
-                    binding.switchAdminMode.isChecked = user.isAdmin
-                    binding.switchAdminMode.setOnCheckedChangeListener { _, isChecked ->
-                        updateAdminMode(isChecked)
-                    }
                     updateAdminVisibility(user.isAdmin)
                 }
             }
-        }
-    }
-
-    private fun updateAdminMode(isChecked: Boolean) {
-        val previousState = isAdminMode
-        isAdminMode = isChecked
-        updateAdminVisibility(isChecked)
-
-        UserManager.setAdminMode(isChecked) {
-            val modeText = if (isChecked) "Admin Mode Activated (Full Control)" else "Standard User Mode"
-            Toast.makeText(requireContext(), modeText, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -86,10 +75,6 @@ class ProfileFragment : Fragment() {
     }
 
     private fun setupListeners() {
-        binding.switchAdminMode.setOnCheckedChangeListener { _, isChecked ->
-            updateAdminMode(isChecked)
-        }
-
         binding.btnAdminBroadcast.setOnClickListener {
             showBroadcastDialog()
         }
